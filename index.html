@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8">
+    <title>ストリートビュー風パノラマ VR対応版</title>
+    <!-- A-Frameライブラリの読み込み -->
+    <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
+    <style>
+        body { margin: 0; padding: 0; overflow: hidden; }
+        /* A-Frameのロード画面などを非表示にしたい場合の調整用 */
+        .a-loader-title { display: none !important; }
+    </style>
+</head>
+<body>
+
+    <!-- a-sceneがVR空間のベースになります。PC用マウス操作も有効化 -->
+    <a-scene cursor="rayOrigin: mouse">
+        <!-- アセット（画像データの定義） -->
+        <a-assets>
+            <!-- 以前のコードで使っていた白い矢印アイコンをSVG形式で定義 -->
+            <img id="arrow-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='18 15 12 9 6 15'></polyline></svg>">
+        </a-assets>
+
+        <!-- 360度パノラマ画像を表示する巨大な球体 -->
+        <a-sky id="sky" src="" rotation="0 0 0" animation__fade="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: sceneloaded"></a-sky>
+
+        <!-- 矢印と文字（ホットスポット）を配置するための空グループ -->
+        <a-entity id="hotspots"></a-entity>
+
+        <!-- プレイヤーの視点とコントローラーの設定 -->
+        <a-entity id="rig">
+            <!-- 頭（カメラ）の動き。PCブラウザ向けにドラッグ方向をストリートビュー風に反転 -->
+            <a-camera id="camera" position="0 1.6 0" look-controls="reverseMouseDrag: true">
+                <!-- 画面中央の丸いカーソル (視線操作やマウス操作用) -->
+                <a-entity cursor="fuse: false"
+                          position="0 0 -1"
+                          geometry="primitive: ring; radiusInner: 0.02; radiusOuter: 0.03"
+                          material="color: white; shader: flat; opacity: 0.5"
+                          raycaster="objects: .clickable">
+                </a-entity>
+            </a-camera>
+            
+            <!-- Meta Quest用コントローラー (レーザーポインターを出す) -->
+            <a-entity laser-controls="hand: right" raycaster="objects: .clickable; far: 20"></a-entity>
+            <a-entity laser-controls="hand: left" raycaster="objects: .clickable; far: 20"></a-entity>
+        </a-entity>
+    </a-scene>
+
+    <script>
+        // Pannellumのデータ構造をそのまま利用できるように定義
+        const scenes = {
+            "scene55": {
+                "panorama": "left_image55.JPG",
+                "hotSpots": [
+                    { "pitch": -19.67, "yaw": -2.89, "text": "教室前通路", "sceneId": "scene66" }
+                ]
+            },
+            "scene66": {
+                "panorama": "left_image66.JPG",
+                "hotSpots": [
+                    { "pitch": -27.14, "yaw": -61.38, "text": "3階非常階段", "sceneId": "scene35" },
+                    { "pitch": -24.73, "yaw": -176.68, "text": "教室へ戻る", "sceneId": "scene55" },
+                    { "pitch": -13.00, "yaw": 93.73, "text": "階段方向通路（準備中）" }
+                ]
+            },
+            "scene35": {
+                "panorama": "left_image35.JPG",
+                "hotSpots": [
+                    { "pitch": -41.88, "yaw": 51.44, "text": "2階-3階_踊り場", "sceneId": "scene34" },
+                    { "pitch": -27.54, "yaw": -175.21, "text": "教室前通路へ戻る", "sceneId": "scene66" }
+                ]
+            },
+            "scene34": {
+                "panorama": "left_image34.JPG",
+                "hotSpots": [
+                    { "pitch": -41.63, "yaw": -113.61, "text": "2階非常階段", "sceneId": "scene33" },
+                    { "pitch": -30.91, "yaw": -67.63, "text": "3階非常階段へ戻る", "sceneId": "scene35" }
+                ]
+            },
+            "scene33": {
+                "panorama": "left_image33.JPG",
+                "hotSpots": [
+                    { "pitch": -39.50, "yaw": 48.92, "text": "1-2階_踊り場", "sceneId": "scene32" },
+                    { "pitch": -24.21, "yaw": 98.65, "text": "2階-3階_踊り場へ戻る", "sceneId": "scene34" },
+                    { "pitch": -35.37, "yaw": -178.55, "text": "2階内部（準備中）" }
+                ]
+            },
+            "scene32": {
+                "panorama": "left_image32.JPG",
+                "hotSpots": [
+                    { "pitch": -42.01, "yaw": -123.03, "text": "1階非常階段前", "sceneId": "scene31" },
+                    { "pitch": -35.00, "yaw": -67.90, "text": "2階非常階段へ戻る", "sceneId": "scene33" }
+                ]
+            },
+            "scene31": {
+                "panorama": "left_image31.JPG",
+                "hotSpots": [
+                    { "pitch": -13.54, "yaw": -0.54, "text": "駐車場1", "sceneId": "scene36" },
+                    { "pitch": -16.19, "yaw": 100.17, "text": "1-2階_踊り場へ戻る", "sceneId": "scene32" },
+                    { "pitch": -30.72, "yaw": -176.69, "text": "1階内部（準備中）" }
+                ]
+            },
+            "scene36": {
+                "panorama": "left_image36.JPG",
+                "hotSpots": [
+                    { "pitch": -22.05, "yaw": -2.08, "text": "駐車場2", "sceneId": "scene37" },
+                    { "pitch": -26.92, "yaw": 177.44, "text": "1階非常階段前へ戻る", "sceneId": "scene31" }
+                ]
+            },
+            "scene37": {
+                "panorama": "left_image37.JPG",
+                "hotSpots": [
+                    { "pitch": -12.70, "yaw": -75.16, "text": "駐車場3", "sceneId": "scene38" },
+                    { "pitch": -25.92, "yaw": 90.33, "text": "駐車場1へ戻る", "sceneId": "scene36" }
+                ]
+            },
+            "scene38": {
+                "panorama": "left_image38.JPG",
+                "hotSpots": [
+                    { "pitch": -13.46, "yaw": -89.85, "text": "学校入口", "sceneId": "scene39" },
+                    { "pitch": -16.45, "yaw": 92.71, "text": "駐車場2へ戻る", "sceneId": "scene37" }
+                ]
+            },
+            "scene39": {
+                "panorama": "left_image39.JPG",
+                "hotSpots": [
+                    { "pitch": -15.87, "yaw": -173.42, "text": "通路1", "sceneId": "scene40" },
+                    { "pitch": -18.45, "yaw": 76.17, "text": "駐車場3へ戻る", "sceneId": "scene38" }
+                ]
+            },
+            "scene40": {
+                "panorama": "left_image40.JPG",
+                "hotSpots": [
+                    { "pitch": -12.59, "yaw": -175.07, "text": "通路2", "sceneId": "scene4" },
+                    { "pitch": -12.69, "yaw": -7.73, "text": "学校入口へ戻る", "sceneId": "scene39" },
+                    { "pitch": -16.51, "yaw": 97.08, "text": "校舎入口（準備中）" }
+                ]
+            },
+            "scene4": {
+                "panorama": "left_image4.JPG",
+                "hotSpots": [
+                    { "pitch": -14.83, "yaw": 164.15, "text": "運動場", "sceneId": "scene62" },
+                    { "pitch": -13.27, "yaw": 1.29, "text": "通路1へ戻る", "sceneId": "scene40" },
+                    { "pitch": -13.76, "yaw": 91.98, "text": "通路3（準備中）" },
+                    { "pitch": -16.98, "yaw": -85.63, "text": "体育館前通路（準備中）" }
+                ]
+            },
+            "scene62": {
+                "panorama": "left_image62.JPG",
+                "hotSpots": [
+                    { "pitch": -4.80, "yaw": -56.39, "text": "通路2へ戻る", "sceneId": "scene4" },
+                    { "pitch": -3.82, "yaw": 0.06, "text": "中央通路（準備中）" },
+                    { "pitch": -2.91, "yaw": 28.72, "text": "朝礼台前通路（準備中）" }
+                ]
+            }
+        };
+
+        // VR空間（A-Frame）で日本語を文字化けさせずに表示するため、
+        // キャンバスを使ってテキストを「画像」に変換する関数
+        function createJapaneseTextTexture(text) {
+            const canvas = document.createElement('canvas');
+            canvas.width = 512;
+            canvas.height = 128;
+            const ctx = canvas.getContext('2d');
+            
+            // 背景（半透明の黒）
+            ctx.fillStyle = 'rgba(0, 0, 0, 0.5)';
+            ctx.roundRect ? ctx.roundRect(0, 0, 512, 128, 20) : ctx.fillRect(0, 0, 512, 128);
+            ctx.fill();
+
+            // テキスト（白）
+            ctx.fillStyle = 'white';
+            ctx.font = 'bold 44px sans-serif';
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillText(text, 256, 64);
+            
+            return canvas.toDataURL();
+        }
+
+        // シーンを切り替えるメイン関数
+        function loadScene(sceneId) {
+            const sceneData = scenes[sceneId];
+            if (!sceneData) return;
+
+            // 1. 背景のパノラマ画像を変更する
+            const sky = document.getElementById('sky');
+            sky.setAttribute('src', sceneData.panorama);
+            sky.emit('sceneloaded'); // フェードインアニメーションを発火
+
+            // 2. 現在配置されている矢印をすべて消す
+            const hotspotContainer = document.getElementById('hotspots');
+            hotspotContainer.innerHTML = '';
+
+            // 3. 新しいシーンの矢印と文字を配置する
+            sceneData.hotSpots.forEach(spot => {
+                // 角度を調整するための透明なラッパー（親要素）
+                const wrapper = document.createElement('a-entity');
+                // Pannellumのpitch/yawをA-FrameのX軸/Y軸回転に変換して適用
+                const rotX = -spot.pitch;
+                const rotY = -spot.yaw;
+                wrapper.setAttribute('rotation', `${rotX} ${rotY} 0`);
+
+                // 矢印アイコン
+                const arrow = document.createElement('a-image');
+                arrow.setAttribute('src', '#arrow-icon');
+                arrow.setAttribute('position', '0 0.5 -6'); // 6メートル奥に配置
+                arrow.setAttribute('scale', '1 1 1');
+                
+                // クリック（Questのトリガー）で移動する設定
+                if (spot.sceneId) {
+                    arrow.setAttribute('class', 'clickable'); // 触れるようにする
+                    arrow.addEventListener('click', () => {
+                        loadScene(spot.sceneId);
+                    });
+                    
+                    // ポインターが当たった時のホバー演出
+                    arrow.addEventListener('mouseenter', () => arrow.setAttribute('scale', '1.3 1.3 1.3'));
+                    arrow.addEventListener('mouseleave', () => arrow.setAttribute('scale', '1 1 1'));
+                } else {
+                    // 「準備中」など移動先がない場合は半透明にする
+                    arrow.setAttribute('opacity', '0.3');
+                }
+
+                // テキスト看板
+                const textLabel = document.createElement('a-image');
+                textLabel.setAttribute('src', createJapaneseTextTexture(spot.text));
+                textLabel.setAttribute('position', '0 -0.5 -6'); // 矢印の下に配置
+                textLabel.setAttribute('width', '2.5');
+                textLabel.setAttribute('height', '0.625');
+
+                // ラッパーの中に組み込んで空間に追加
+                wrapper.appendChild(arrow);
+                wrapper.appendChild(textLabel);
+                hotspotContainer.appendChild(wrapper);
+            });
+        }
+
+        // ページ読み込み完了時に最初のシーン（教室）をロード
+        window.onload = () => {
+            loadScene('scene55');
+        };
+    </script>
+</body>
+</html>
