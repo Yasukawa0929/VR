@@ -16,7 +16,6 @@
     <a-scene cursor="rayOrigin: mouse">
         <!-- アセット（画像データの定義） -->
         <a-assets>
-            <!-- ★修正ポイント：○の中に↑が入っている黒色のデザインに変更しました -->
             <img id="arrow-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='rgba(255,255,255,0.3)' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='8'></line><polyline points='8 12 12 8 16 12'></polyline></svg>">
         </a-assets>
 
@@ -45,7 +44,7 @@
     </a-scene>
 
     <script>
-        // Pannellumのデータ構造をそのまま利用
+        // Pannellumのデータ構造をそのまま利用（「へ戻る」を削除しました）
         const scenes = {
             "scene55": {
                 "panorama": "left_image55.JPG",
@@ -57,7 +56,7 @@
                 "panorama": "left_image66.JPG",
                 "hotSpots": [
                     { "pitch": -27.14, "yaw": -61.38, "text": "3階非常階段", "sceneId": "scene35" },
-                    { "pitch": -24.73, "yaw": -176.68, "text": "教室へ戻る", "sceneId": "scene55" },
+                    { "pitch": -24.73, "yaw": -176.68, "text": "教室", "sceneId": "scene55" },
                     { "pitch": -13.00, "yaw": 93.73, "text": "階段方向通路（準備中）" }
                 ]
             },
@@ -65,21 +64,21 @@
                 "panorama": "left_image35.JPG",
                 "hotSpots": [
                     { "pitch": -41.88, "yaw": 51.44, "text": "2階-3階_踊り場", "sceneId": "scene34" },
-                    { "pitch": -27.54, "yaw": -175.21, "text": "教室前通路へ戻る", "sceneId": "scene66" }
+                    { "pitch": -27.54, "yaw": -175.21, "text": "教室前通路", "sceneId": "scene66" }
                 ]
             },
             "scene34": {
                 "panorama": "left_image34.JPG",
                 "hotSpots": [
                     { "pitch": -41.63, "yaw": -113.61, "text": "2階非常階段", "sceneId": "scene33" },
-                    { "pitch": -30.91, "yaw": -67.63, "text": "3階非常階段へ戻る", "sceneId": "scene35" }
+                    { "pitch": -30.91, "yaw": -67.63, "text": "3階非常階段", "sceneId": "scene35" }
                 ]
             },
             "scene33": {
                 "panorama": "left_image33.JPG",
                 "hotSpots": [
                     { "pitch": -39.50, "yaw": 48.92, "text": "1-2階_踊り場", "sceneId": "scene32" },
-                    { "pitch": -24.21, "yaw": 98.65, "text": "2階-3階_踊り場へ戻る", "sceneId": "scene34" },
+                    { "pitch": -24.21, "yaw": 98.65, "text": "2階-3階_踊り場", "sceneId": "scene34" },
                     { "pitch": -35.37, "yaw": -178.55, "text": "2階内部（準備中）" }
                 ]
             },
@@ -87,14 +86,14 @@
                 "panorama": "left_image32.JPG",
                 "hotSpots": [
                     { "pitch": -42.01, "yaw": -123.03, "text": "1階非常階段前", "sceneId": "scene31" },
-                    { "pitch": -35.00, "yaw": -67.90, "text": "2階非常階段へ戻る", "sceneId": "scene33" }
+                    { "pitch": -35.00, "yaw": -67.90, "text": "2階非常階段", "sceneId": "scene33" }
                 ]
             },
             "scene31": {
                 "panorama": "left_image31.JPG",
                 "hotSpots": [
                     { "pitch": -13.54, "yaw": -0.54, "text": "駐車場1", "sceneId": "scene36" },
-                    { "pitch": -16.19, "yaw": 100.17, "text": "1-2階_踊り場へ戻る", "sceneId": "scene32" },
+                    { "pitch": -16.19, "yaw": 100.17, "text": "1-2階_踊り場", "sceneId": "scene32" },
                     { "pitch": -30.72, "yaw": -176.69, "text": "1階内部（準備中）" }
                 ]
             },
@@ -102,35 +101,35 @@
                 "panorama": "left_image36.JPG",
                 "hotSpots": [
                     { "pitch": -22.05, "yaw": -2.08, "text": "駐車場2", "sceneId": "scene37" },
-                    { "pitch": -26.92, "yaw": 177.44, "text": "1階非常階段前へ戻る", "sceneId": "scene31" }
+                    { "pitch": -26.92, "yaw": 177.44, "text": "1階非常階段前", "sceneId": "scene31" }
                 ]
             },
             "scene37": {
                 "panorama": "left_image37.JPG",
                 "hotSpots": [
                     { "pitch": -12.70, "yaw": -75.16, "text": "駐車場3", "sceneId": "scene38" },
-                    { "pitch": -25.92, "yaw": 90.33, "text": "駐車場1へ戻る", "sceneId": "scene36" }
+                    { "pitch": -25.92, "yaw": 90.33, "text": "駐車場1", "sceneId": "scene36" }
                 ]
             },
             "scene38": {
                 "panorama": "left_image38.JPG",
                 "hotSpots": [
                     { "pitch": -13.46, "yaw": -89.85, "text": "学校入口", "sceneId": "scene39" },
-                    { "pitch": -16.45, "yaw": 92.71, "text": "駐車場2へ戻る", "sceneId": "scene37" }
+                    { "pitch": -16.45, "yaw": 92.71, "text": "駐車場2", "sceneId": "scene37" }
                 ]
             },
             "scene39": {
                 "panorama": "left_image39.JPG",
                 "hotSpots": [
                     { "pitch": -15.87, "yaw": -173.42, "text": "通路1", "sceneId": "scene40" },
-                    { "pitch": -18.45, "yaw": 76.17, "text": "駐車場3へ戻る", "sceneId": "scene38" }
+                    { "pitch": -18.45, "yaw": 76.17, "text": "駐車場3", "sceneId": "scene38" }
                 ]
             },
             "scene40": {
                 "panorama": "left_image40.JPG",
                 "hotSpots": [
                     { "pitch": -12.59, "yaw": -175.07, "text": "通路2", "sceneId": "scene4" },
-                    { "pitch": -12.69, "yaw": -7.73, "text": "学校入口へ戻る", "sceneId": "scene39" },
+                    { "pitch": -12.69, "yaw": -7.73, "text": "学校入口", "sceneId": "scene39" },
                     { "pitch": -16.51, "yaw": 97.08, "text": "校舎入口（準備中）" }
                 ]
             },
@@ -138,7 +137,7 @@
                 "panorama": "left_image4.JPG",
                 "hotSpots": [
                     { "pitch": -14.83, "yaw": 164.15, "text": "運動場", "sceneId": "scene62" },
-                    { "pitch": -13.27, "yaw": 1.29, "text": "通路1へ戻る", "sceneId": "scene40" },
+                    { "pitch": -13.27, "yaw": 1.29, "text": "通路1", "sceneId": "scene40" },
                     { "pitch": -13.76, "yaw": 91.98, "text": "通路3（準備中）" },
                     { "pitch": -16.98, "yaw": -85.63, "text": "体育館前通路（準備中）" }
                 ]
@@ -146,7 +145,7 @@
             "scene62": {
                 "panorama": "left_image62.JPG",
                 "hotSpots": [
-                    { "pitch": -4.80, "yaw": -56.39, "text": "通路2へ戻る", "sceneId": "scene4" },
+                    { "pitch": -4.80, "yaw": -56.39, "text": "通路2", "sceneId": "scene4" },
                     { "pitch": -3.82, "yaw": 0.06, "text": "中央通路（準備中）" },
                     { "pitch": -2.91, "yaw": 28.72, "text": "朝礼台前通路（準備中）" }
                 ]
@@ -188,10 +187,8 @@
             sceneData.hotSpots.forEach(spot => {
                 const wrapper = document.createElement('a-entity');
                 
-                // ★修正ポイント：縦方向（pitch）を 10度 上方向に移動させました
+                // 縦方向を10度上に、横方向を右回りに90度
                 const rotX = spot.pitch + 10; 
-                
-                // 横方向は右回りに90度のまま
                 const rotY = -spot.yaw - 90; 
                 
                 wrapper.setAttribute('rotation', `${rotX} ${rotY} 0`);
@@ -204,27 +201,22 @@
                 
                 if (spot.sceneId) {
                     arrow.setAttribute('class', 'clickable');
-                    
-                    // ★修正ポイント：通常時は少し透明（0.6）にしておく
                     arrow.setAttribute('opacity', '0.6');
                     
                     arrow.addEventListener('click', () => {
                         loadScene(spot.sceneId);
                     });
                     
-                    // ★修正ポイント：焦点を合わせた時に、大きくなりつつ完全に見える（1.0）ようにする
                     arrow.addEventListener('mouseenter', () => {
                         arrow.setAttribute('scale', '1.3 1.3 1.3');
                         arrow.setAttribute('opacity', '1.0');
                     });
                     
-                    // 焦点を外した時に元の透明度とサイズに戻す
                     arrow.addEventListener('mouseleave', () => {
                         arrow.setAttribute('scale', '1 1 1');
                         arrow.setAttribute('opacity', '0.6');
                     });
                 } else {
-                    // 準備中のものはさらに薄く（0.3）
                     arrow.setAttribute('opacity', '0.3');
                 }
 
