@@ -16,7 +16,8 @@
     <a-scene cursor="rayOrigin: mouse">
         <!-- アセット（画像データの定義） -->
         <a-assets>
-            <img id="arrow-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='white' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'><polyline points='18 15 12 9 6 15'></polyline></svg>">
+            <!-- ★修正ポイント：○の中に↑が入っている黒色のデザインに変更しました -->
+            <img id="arrow-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='rgba(255,255,255,0.3)' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='8'></line><polyline points='8 12 12 8 16 12'></polyline></svg>">
         </a-assets>
 
         <!-- 背景画像の「正面」を180度反転させておく -->
@@ -187,10 +188,10 @@
             sceneData.hotSpots.forEach(spot => {
                 const wrapper = document.createElement('a-entity');
                 
-                // ★修正ポイント：Pannellumの数値をA-Frameの空間に合わせる
-                const rotX = spot.pitch; 
+                // ★修正ポイント：縦方向（pitch）を 10度 上方向に移動させました
+                const rotX = spot.pitch + 10; 
                 
-                // ★さらに右回りに90度ズラす（-90 を追加しました）
+                // 横方向は右回りに90度のまま
                 const rotY = -spot.yaw - 90; 
                 
                 wrapper.setAttribute('rotation', `${rotX} ${rotY} 0`);
@@ -203,12 +204,27 @@
                 
                 if (spot.sceneId) {
                     arrow.setAttribute('class', 'clickable');
+                    
+                    // ★修正ポイント：通常時は少し透明（0.6）にしておく
+                    arrow.setAttribute('opacity', '0.6');
+                    
                     arrow.addEventListener('click', () => {
                         loadScene(spot.sceneId);
                     });
-                    arrow.addEventListener('mouseenter', () => arrow.setAttribute('scale', '1.3 1.3 1.3'));
-                    arrow.addEventListener('mouseleave', () => arrow.setAttribute('scale', '1 1 1'));
+                    
+                    // ★修正ポイント：焦点を合わせた時に、大きくなりつつ完全に見える（1.0）ようにする
+                    arrow.addEventListener('mouseenter', () => {
+                        arrow.setAttribute('scale', '1.3 1.3 1.3');
+                        arrow.setAttribute('opacity', '1.0');
+                    });
+                    
+                    // 焦点を外した時に元の透明度とサイズに戻す
+                    arrow.addEventListener('mouseleave', () => {
+                        arrow.setAttribute('scale', '1 1 1');
+                        arrow.setAttribute('opacity', '0.6');
+                    });
                 } else {
+                    // 準備中のものはさらに薄く（0.3）
                     arrow.setAttribute('opacity', '0.3');
                 }
 
