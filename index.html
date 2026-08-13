@@ -2,15 +2,65 @@
 <html lang="ja">
 <head>
     <meta charset="utf-8">
-    <title>ストリートビュー風パノラマ VR対応版</title>
+    <title>ストリートビュー風パノラマ VR対応版（シナリオ選択機能付き）</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; }
+        body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
         .a-loader-title { display: none !important; }
+        
+        /* シナリオ選択メニューのスタイル */
+        #start-menu {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: rgba(0, 0, 0, 0.8);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999; /* 3D空間より前面に表示 */
+            color: white;
+        }
+        #start-menu h1 {
+            font-size: 24px;
+            margin-bottom: 30px;
+        }
+        .scenario-btn {
+            background-color: #333;
+            color: white;
+            border: 2px solid white;
+            padding: 15px 40px;
+            margin: 10px;
+            font-size: 18px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+        .scenario-btn:hover {
+            background-color: white;
+            color: black;
+        }
+        .scenario-btn.fire {
+            border-color: #ff4444;
+        }
+        .scenario-btn.fire:hover {
+            background-color: #ff4444;
+            color: white;
+        }
     </style>
 </head>
 <body>
 
+    <!-- シナリオ選択画面（HTMLオーバーレイ） -->
+    <div id="start-menu">
+        <h1>体験するシナリオを選択してください</h1>
+        <button class="scenario-btn" onclick="startScenario('normal')">シナリオ1：通常時</button>
+        <button class="scenario-btn fire" onclick="startScenario('fire')">シナリオ2：火災発生時</button>
+    </div>
+
+    <!-- VR空間 -->
     <a-scene cursor="rayOrigin: mouse">
         <a-assets>
             <img id="arrow-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='rgba(255,255,255,0.3)' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='8'></line><polyline points='8 12 12 8 16 12'></polyline></svg>">
@@ -35,8 +85,11 @@
     </a-scene>
 
     <script>
-        // A-Frame用に計算済みの座標（rotX, rotY）を格納したデータ
-        const scenes = {
+        // 現在選択されているシナリオを記憶する変数
+        let currentScenario = 'normal';
+
+        // 共通のルート・看板データ（シナリオごとに書き換えやすいように別々に定義しています）
+        const commonData = {
             "scene55": {
                 "panorama": "left_image55.JPG",
                 "hotSpots": [
@@ -158,12 +211,33 @@
                 "panorama": "left_image62.JPG",
                 "hotSpots": [
                     { "rotX": 5.20, "rotY": -33.61, "text": "通路2", "sceneId": "scene4" },
-                    { "rotX": 6.18, "rotY": -90.06, text: "中央通路（準備中）" },
-                    { "rotX": 7.09, "rotY": -118.72, text: "朝礼台前通路（準備中）" }
+                    { "rotX": 6.18, "rotY": -90.06, "text": "中央通路（準備中）" },
+                    { "rotX": 7.09, "rotY": -118.72, "text": "朝礼台前通路（準備中）" }
                 ]
             }
         };
 
+        // シナリオごとにデータを分割（現在はどちらも同じ中身）
+        const scenarioData = {
+            // シナリオ1：通常時のデータ
+            normal: JSON.parse(JSON.stringify(commonData)),
+            
+            // シナリオ2：火災発生時のデータ（準備ができたら、この部分のデータを直接書き換えてください）
+            fire: JSON.parse(JSON.stringify(commonData))
+        };
+
+        // シナリオ開始ボタンが押された時の処理
+        function startScenario(scenarioName) {
+            currentScenario = scenarioName;
+            
+            // メニュー画面を非表示にする
+            document.getElementById('start-menu').style.display = 'none';
+            
+            // 選択されたシナリオの最初のシーンを読み込む
+            loadScene('scene55');
+        }
+
+        // 看板のテキスト画像を生成（通常時仕様に戻しました）
         function createJapaneseTextTexture(text) {
             const canvas = document.createElement('canvas');
             canvas.width = 512;
@@ -184,7 +258,8 @@
         }
 
         function loadScene(sceneId) {
-            const sceneData = scenes[sceneId];
+            // 現在のシナリオの中からデータを取得
+            const sceneData = scenarioData[currentScenario][sceneId];
             if (!sceneData) return;
 
             const sky = document.getElementById('sky');
@@ -196,8 +271,6 @@
 
             sceneData.hotSpots.forEach(spot => {
                 const wrapper = document.createElement('a-entity');
-                
-                // データ側で計算済みの座標をそのまま適用
                 wrapper.setAttribute('rotation', `${spot.rotX} ${spot.rotY} 0`);
 
                 const arrow = document.createElement('a-image');
@@ -237,10 +310,6 @@
                 hotspotContainer.appendChild(wrapper);
             });
         }
-
-        window.onload = () => {
-            loadScene('scene55');
-        };
     </script>
 </body>
 </html>
