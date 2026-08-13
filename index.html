@@ -20,7 +20,7 @@
             flex-direction: column;
             justify-content: center;
             align-items: center;
-            z-index: 9999; /* 3D空間より前面に表示 */
+            z-index: 9999;
             color: white;
         }
         #start-menu h1 {
@@ -53,7 +53,7 @@
 </head>
 <body>
 
-    <!-- シナリオ選択画面（HTMLオーバーレイ） -->
+    <!-- シナリオ選択画面 -->
     <div id="start-menu">
         <h1>体験するシナリオを選択してください</h1>
         <button class="scenario-btn" onclick="startScenario('normal')">シナリオ1：通常時</button>
@@ -85,10 +85,9 @@
     </a-scene>
 
     <script>
-        // 現在選択されているシナリオを記憶する変数
         let currentScenario = 'normal';
 
-        // 共通のルート・看板データ（シナリオごとに書き換えやすいように別々に定義しています）
+        // 共通のベースデータ
         const commonData = {
             "scene55": {
                 "panorama": "left_image55.JPG",
@@ -217,27 +216,27 @@
             }
         };
 
-        // シナリオごとにデータを分割（現在はどちらも同じ中身）
+        // シナリオ2（火災発生時）用のデータを生成
+        const fireData = JSON.parse(JSON.stringify(commonData));
+        
+        // 指定されたシーンのみ火災用の画像に差替え
+        fireData["scene66"].panorama = "fire_image66.JPG";
+        fireData["scene57"].panorama = "fire_image57.JPG";
+        fireData["scene60"].panorama = "fire_image60.JPG";
+        fireData["scene61"].panorama = "fire_image61.JPG";
+
+        // シナリオデータの設定
         const scenarioData = {
-            // シナリオ1：通常時のデータ
             normal: JSON.parse(JSON.stringify(commonData)),
-            
-            // シナリオ2：火災発生時のデータ（準備ができたら、この部分のデータを直接書き換えてください）
-            fire: JSON.parse(JSON.stringify(commonData))
+            fire: fireData
         };
 
-        // シナリオ開始ボタンが押された時の処理
         function startScenario(scenarioName) {
             currentScenario = scenarioName;
-            
-            // メニュー画面を非表示にする
             document.getElementById('start-menu').style.display = 'none';
-            
-            // 選択されたシナリオの最初のシーンを読み込む
             loadScene('scene55');
         }
 
-        // 看板のテキスト画像を生成（通常時仕様に戻しました）
         function createJapaneseTextTexture(text) {
             const canvas = document.createElement('canvas');
             canvas.width = 512;
@@ -258,7 +257,6 @@
         }
 
         function loadScene(sceneId) {
-            // 現在のシナリオの中からデータを取得
             const sceneData = scenarioData[currentScenario][sceneId];
             if (!sceneData) return;
 
