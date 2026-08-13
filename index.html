@@ -49,6 +49,26 @@
             background-color: #ff4444;
             color: white;
         }
+
+        /* 画面上部のメッセージUI */
+        #mission-ui {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background-color: rgba(220, 0, 0, 0.85); /* 半透明の赤色 */
+            color: white;
+            padding: 15px 30px;
+            font-size: 20px;
+            font-weight: bold;
+            border-radius: 8px;
+            border: 2px solid white;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+            z-index: 9000;
+            display: none; /* 初期状態は非表示 */
+            pointer-events: none; /* クリックの邪魔にならないようにする */
+            text-align: center;
+        }
     </style>
 </head>
 <body>
@@ -59,6 +79,9 @@
         <button class="scenario-btn" onclick="startScenario('normal')">シナリオ1：通常時</button>
         <button class="scenario-btn fire" onclick="startScenario('fire')">シナリオ2：火災発生時</button>
     </div>
+
+    <!-- 画面上部の指示メッセージ -->
+    <div id="mission-ui">資料室で火災発生、運動場まで避難しよう</div>
 
     <!-- VR空間 -->
     <a-scene cursor="rayOrigin: mouse">
@@ -259,6 +282,16 @@
         function loadScene(sceneId) {
             const sceneData = scenarioData[currentScenario][sceneId];
             if (!sceneData) return;
+
+            // ----------------------------------------------------
+            // ★追加部分: 条件に合わせてメッセージUIの表示・非表示を切り替える
+            // ----------------------------------------------------
+            const missionUi = document.getElementById('mission-ui');
+            if (currentScenario === 'fire' && sceneId === 'scene55') {
+                missionUi.style.display = 'block'; // 火災シナリオ ＆ scene55 の時だけ表示
+            } else {
+                missionUi.style.display = 'none';  // それ以外のシーンや通常時は非表示
+            }
 
             const sky = document.getElementById('sky');
             sky.setAttribute('src', sceneData.panorama);
