@@ -50,7 +50,6 @@
             background-color: #ff4444;
             color: white;
         }
-        /* 津波用ボタンのスタイル追加 */
         .scenario-btn.tsunami {
             border-color: #4488ff;
         }
@@ -126,32 +125,35 @@
             "scene57": { "panorama": "left_image57.JPG", "hotSpots": [{ "rotX": -1.84, "rotY": -183.19, "text": "3階通路2", "sceneId": "scene60" }, { "rotX": -8.77, "rotY": -4.28, "text": "教室前通路", "sceneId": "scene66" }] },
             "scene60": { "panorama": "left_image60.JPG", "hotSpots": [{ "rotX": -2.25, "rotY": -190.72, "text": "3階階段", "sceneId": "scene61" }, { "rotX": -4.90, "rotY": -12.63, "text": "3階通路1", "sceneId": "scene57" }] },
             "scene61": { "panorama": "left_image61.JPG", "hotSpots": [
-                { "rotX": -13.42, "rotY": -250.27, "text": "2-3階踊り場", "sceneId": "scene54" }, // 54へ接続完了！
+                { "rotX": -13.42, "rotY": -250.27, "text": "2-3階踊り場", "sceneId": "scene54" },
                 { "rotX": -1.45, "rotY": -5.89, "text": "3階通路2", "sceneId": "scene60" }
             ]},
-            // ★新規追加 54～19
+
+            // ★新規追加 54～19 (A-Frame用にYawを反転計算)
             "scene54": { "panorama": "left_image54.JPG", "hotSpots": [
-                { "rotX": -45.86, "rotY": -30.16, "text": "2階階段", "sceneId": "scene53" },
-                { "rotX": -30.85, "rotY": 32.60, "text": "3階階段", "sceneId": "scene61" }
+                { "rotX": -45.86, "rotY": 30.16, "text": "2階階段", "sceneId": "scene53" },
+                { "rotX": -30.85, "rotY": -32.60, "text": "3階階段", "sceneId": "scene61" }
             ]},
             "scene53": { "panorama": "left_image53.JPG", "hotSpots": [
-                { "rotX": -30.70, "rotY": 169.21, "text": "1-2階踊り場", "sceneId": "scene52" },
-                { "rotX": -19.88, "rotY": -157.54, "text": "2-3階踊り場", "sceneId": "scene54" }
+                { "rotX": -30.70, "rotY": -169.21, "text": "1-2階踊り場", "sceneId": "scene52" },
+                { "rotX": -19.88, "rotY": 157.54, "text": "2-3階踊り場", "sceneId": "scene54" }
             ]},
             "scene52": { "panorama": "left_image52.JPG", "hotSpots": [
-                { "rotX": -45.63, "rotY": -31.50, "text": "1階階段", "sceneId": "scene51" },
-                { "rotX": -26.34, "rotY": 27.38, "text": "2階階段", "sceneId": "scene53" }
+                { "rotX": -45.63, "rotY": 31.50, "text": "1階階段", "sceneId": "scene51" },
+                { "rotX": -26.34, "rotY": -27.38, "text": "2階階段", "sceneId": "scene53" }
             ]},
             "scene51": { "panorama": "left_image51.JPG", "hotSpots": [
-                { "rotX": -20.00, "rotY": 168.30, "text": "朝礼台前通路", "sceneId": "scene19" },
-                { "rotX": -14.55, "rotY": -163.94, "text": "1-2階踊り場", "sceneId": "scene52" },
-                { "rotX": -17.67, "rotY": -88.73, "text": "未準備通路１（準備中）" } // 矢印のみ
+                { "rotX": -20.00, "rotY": -168.30, "text": "朝礼台前通路", "sceneId": "scene19" },
+                { "rotX": -14.55, "rotY": 163.94, "text": "1-2階踊り場", "sceneId": "scene52" },
+                { "rotX": -17.67, "rotY": 88.73, "text": "未準備通路１（準備中）" } 
             ]},
             "scene19": { "panorama": "left_image19.JPG", "hotSpots": [
-                { "rotX": -15.18, "rotY": 13.61, "text": "1階階段", "sceneId": "scene51" },
-                { "rotX": -15.46, "rotY": 92.02, "text": "未準備通路２（準備中）" }, // 矢印のみ
-                { "rotX": -11.18, "rotY": -88.54, "text": "未準備通路３（準備中）" } // 矢印のみ
+                { "rotX": -9.93, "rotY": -179.51, "text": "運動場", "sceneId": "scene62" }, // ★62へ接続
+                { "rotX": -15.18, "rotY": -13.61, "text": "1階階段", "sceneId": "scene51" },
+                { "rotX": -15.46, "rotY": -92.02, "text": "未準備通路２（準備中）" }, 
+                { "rotX": -11.18, "rotY": 88.54, "text": "未準備通路３（準備中）" } 
             ]},
+
             // 既存の非常階段・外回りデータ
             "scene35": { "panorama": "left_image35.JPG", "hotSpots": [{ "rotX": -31.88, "rotY": -141.44, "text": "2階-3階_踊り場", "sceneId": "scene34" }, { "rotX": -17.54, "rotY": 85.21, "text": "教室前通路", "sceneId": "scene66" }] },
             "scene34": { "panorama": "left_image34.JPG", "hotSpots": [{ "rotX": -31.63, "rotY": 23.61, "text": "2階非常階段", "sceneId": "scene33" }, { "rotX": -20.91, "rotY": -22.37, "text": "3階非常階段", "sceneId": "scene35" }] },
@@ -167,7 +169,7 @@
             "scene62": { "panorama": "left_image62.JPG", "hotSpots": [
                 { "rotX": 5.20, "rotY": -33.61, "text": "通路2", "sceneId": "scene4" }, 
                 { "rotX": 6.18, "rotY": -90.06, "text": "中央通路（準備中）" }, 
-                { "rotX": 7.09, "rotY": -118.72, "text": "朝礼台前通路", "sceneId": "scene19" } // 19へ接続完了！
+                { "rotX": 7.09, "rotY": -118.72, "text": "朝礼台前通路", "sceneId": "scene19" } // ★19へ接続
             ]}
         };
 
