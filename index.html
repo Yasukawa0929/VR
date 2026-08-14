@@ -37,6 +37,7 @@
             border-radius: 8px;
             cursor: pointer;
             transition: 0.3s;
+            width: 300px;
         }
         .scenario-btn:hover {
             background-color: white;
@@ -49,6 +50,14 @@
             background-color: #ff4444;
             color: white;
         }
+        /* 津波用ボタンのスタイル追加 */
+        .scenario-btn.tsunami {
+            border-color: #4488ff;
+        }
+        .scenario-btn.tsunami:hover {
+            background-color: #4488ff;
+            color: white;
+        }
 
         /* 画面上部のメッセージUI */
         #mission-ui {
@@ -56,7 +65,6 @@
             top: 20px;
             left: 50%;
             transform: translateX(-50%);
-            background-color: rgba(220, 0, 0, 0.85); /* 半透明の赤色 */
             color: white;
             padding: 15px 30px;
             font-size: 20px;
@@ -65,8 +73,8 @@
             border: 2px solid white;
             box-shadow: 0 4px 6px rgba(0,0,0,0.3);
             z-index: 9000;
-            display: none; /* 初期状態は非表示 */
-            pointer-events: none; /* クリックの邪魔にならないようにする */
+            display: none;
+            pointer-events: none;
             text-align: center;
         }
     </style>
@@ -78,10 +86,11 @@
         <h1>体験するシナリオを選択してください</h1>
         <button class="scenario-btn" onclick="startScenario('normal')">シナリオ1：通常時</button>
         <button class="scenario-btn fire" onclick="startScenario('fire')">シナリオ2：火災発生時</button>
+        <button class="scenario-btn tsunami" onclick="startScenario('tsunami')">シナリオ3：津波発生時</button>
     </div>
 
     <!-- 画面上部の指示メッセージ -->
-    <div id="mission-ui">資料室で火災発生、運動場まで避難しよう</div>
+    <div id="mission-ui"></div>
 
     <!-- VR空間 -->
     <a-scene cursor="rayOrigin: mouse">
@@ -110,154 +119,71 @@
     <script>
         let currentScenario = 'normal';
 
-        // 共通のベースデータ
+        // 共通のベースデータ（省略せずに記載）
         const commonData = {
-            "scene55": {
-                "panorama": "left_image55.JPG",
-                "hotSpots": [
-                    { "rotX": -9.67, "rotY": -87.11, "text": "教室前通路", "sceneId": "scene66" }
-                ]
-            },
-            "scene66": {
-                "panorama": "left_image66.JPG",
-                "hotSpots": [
-                    { "rotX": -17.14, "rotY": -28.62, "text": "3階非常階段", "sceneId": "scene35" },
-                    { "rotX": -14.73, "rotY": 86.68, "text": "教室", "sceneId": "scene55" },
-                    { "rotX": -3.00, "rotY": -183.73, "text": "3階通路1", "sceneId": "scene57" }
-                ]
-            },
-            "scene57": {
-                "panorama": "left_image57.JPG",
-                "hotSpots": [
-                    { "rotX": -1.84, "rotY": -183.19, "text": "3階通路2", "sceneId": "scene60" },
-                    { "rotX": -8.77, "rotY": -4.28, "text": "教室前通路", "sceneId": "scene66" }
-                ]
-            },
-            "scene60": {
-                "panorama": "left_image60.JPG",
-                "hotSpots": [
-                    { "rotX": -2.25, "rotY": -190.72, "text": "3階階段", "sceneId": "scene61" },
-                    { "rotX": -4.90, "rotY": -12.63, "text": "3階通路1", "sceneId": "scene57" }
-                ]
-            },
-            "scene61": {
-                "panorama": "left_image61.JPG",
-                "hotSpots": [
-                    { "rotX": -13.42, "rotY": -250.27, "text": "2-3階踊り場（準備中）" },
-                    { "rotX": -1.45, "rotY": -5.89, "text": "3階通路2", "sceneId": "scene60" }
-                ]
-            },
-            "scene35": {
-                "panorama": "left_image35.JPG",
-                "hotSpots": [
-                    { "rotX": -31.88, "rotY": -141.44, "text": "2階-3階_踊り場", "sceneId": "scene34" },
-                    { "rotX": -17.54, "rotY": 85.21, "text": "教室前通路", "sceneId": "scene66" }
-                ]
-            },
-            "scene34": {
-                "panorama": "left_image34.JPG",
-                "hotSpots": [
-                    { "rotX": -31.63, "rotY": 23.61, "text": "2階非常階段", "sceneId": "scene33" },
-                    { "rotX": -20.91, "rotY": -22.37, "text": "3階非常階段", "sceneId": "scene35" }
-                ]
-            },
-            "scene33": {
-                "panorama": "left_image33.JPG",
-                "hotSpots": [
-                    { "rotX": -29.50, "rotY": -138.92, "text": "1-2階_踊り場", "sceneId": "scene32" },
-                    { "rotX": -14.21, "rotY": -188.65, "text": "2階-3階_踊り場", "sceneId": "scene34" },
-                    { "rotX": -25.37, "rotY": 88.55, "text": "2階内部（準備中）" }
-                ]
-            },
-            "scene32": {
-                "panorama": "left_image32.JPG",
-                "hotSpots": [
-                    { "rotX": -32.01, "rotY": 33.03, "text": "1階非常階段前", "sceneId": "scene31" },
-                    { "rotX": -25.00, "rotY": -22.10, "text": "2階非常階段", "sceneId": "scene33" }
-                ]
-            },
-            "scene31": {
-                "panorama": "left_image31.JPG",
-                "hotSpots": [
-                    { "rotX": -3.54, "rotY": -89.46, "text": "駐車場1", "sceneId": "scene36" },
-                    { "rotX": -6.19, "rotY": -190.17, "text": "1-2階_踊り場", "sceneId": "scene32" },
-                    { "rotX": -20.72, "rotY": 86.69, "text": "1階内部（準備中）" }
-                ]
-            },
-            "scene36": {
-                "panorama": "left_image36.JPG",
-                "hotSpots": [
-                    { "rotX": -12.05, "rotY": -87.92, "text": "駐車場2", "sceneId": "scene37" },
-                    { "rotX": -16.92, "rotY": -267.44, "text": "1階非常階段前", "sceneId": "scene31" }
-                ]
-            },
-            "scene37": {
-                "panorama": "left_image37.JPG",
-                "hotSpots": [
-                    { "rotX": -2.70, "rotY": -14.84, "text": "駐車場3", "sceneId": "scene38" },
-                    { "rotX": -15.92, "rotY": -180.33, "text": "駐車場1", "sceneId": "scene36" }
-                ]
-            },
-            "scene38": {
-                "panorama": "left_image38.JPG",
-                "hotSpots": [
-                    { "rotX": -3.46, "rotY": -0.15, "text": "学校入口", "sceneId": "scene39" },
-                    { "rotX": -6.45, "rotY": -182.71, "text": "駐車場2", "sceneId": "scene37" }
-                ]
-            },
-            "scene39": {
-                "panorama": "left_image39.JPG",
-                "hotSpots": [
-                    { "rotX": -5.87, "rotY": 83.42, "text": "通路1", "sceneId": "scene40" },
-                    { "rotX": -8.45, "rotY": -166.17, "text": "駐車場3", "sceneId": "scene38" }
-                ]
-            },
-            "scene40": {
-                "panorama": "left_image40.JPG",
-                "hotSpots": [
-                    { "rotX": -2.59, "rotY": 85.07, "text": "通路2", "sceneId": "scene4" },
-                    { "rotX": -2.69, "rotY": -82.27, "text": "学校入口", "sceneId": "scene39" },
-                    { "rotX": -6.51, "rotY": -187.08, "text": "校舎入口（準備中）" }
-                ]
-            },
-            "scene4": {
-                "panorama": "left_image4.JPG",
-                "hotSpots": [
-                    { "rotX": -4.83, "rotY": -254.15, "text": "運動場", "sceneId": "scene62" },
-                    { "rotX": -3.27, "rotY": -91.29, "text": "通路1", "sceneId": "scene40" },
-                    { "rotX": -3.76, "rotY": -181.98, "text": "通路3（準備中）" },
-                    { "rotX": -6.98, "rotY": -4.37, "text": "体育館前通路（準備中）" }
-                ]
-            },
-            "scene62": {
-                "panorama": "left_image62.JPG",
-                "hotSpots": [
-                    { "rotX": 5.20, "rotY": -33.61, "text": "通路2", "sceneId": "scene4" },
-                    { "rotX": 6.18, "rotY": -90.06, "text": "中央通路（準備中）" },
-                    { "rotX": 7.09, "rotY": -118.72, "text": "朝礼台前通路（準備中）" }
-                ]
-            }
+            "scene55": { "panorama": "left_image55.JPG", "hotSpots": [{ "rotX": -9.67, "rotY": -87.11, "text": "教室前通路", "sceneId": "scene66" }] },
+            "scene66": { "panorama": "left_image66.JPG", "hotSpots": [{ "rotX": -17.14, "rotY": -28.62, "text": "3階非常階段", "sceneId": "scene35" }, { "rotX": -14.73, "rotY": 86.68, "text": "教室", "sceneId": "scene55" }, { "rotX": -3.00, "rotY": -183.73, "text": "3階通路1", "sceneId": "scene57" }] },
+            "scene57": { "panorama": "left_image57.JPG", "hotSpots": [{ "rotX": -1.84, "rotY": -183.19, "text": "3階通路2", "sceneId": "scene60" }, { "rotX": -8.77, "rotY": -4.28, "text": "教室前通路", "sceneId": "scene66" }] },
+            "scene60": { "panorama": "left_image60.JPG", "hotSpots": [{ "rotX": -2.25, "rotY": -190.72, "text": "3階階段", "sceneId": "scene61" }, { "rotX": -4.90, "rotY": -12.63, "text": "3階通路1", "sceneId": "scene57" }] },
+            "scene61": { "panorama": "left_image61.JPG", "hotSpots": [{ "rotX": -13.42, "rotY": -250.27, "text": "2-3階踊り場（準備中）" }, { "rotX": -1.45, "rotY": -5.89, "text": "3階通路2", "sceneId": "scene60" }] },
+            "scene35": { "panorama": "left_image35.JPG", "hotSpots": [{ "rotX": -31.88, "rotY": -141.44, "text": "2階-3階_踊り場", "sceneId": "scene34" }, { "rotX": -17.54, "rotY": 85.21, "text": "教室前通路", "sceneId": "scene66" }] },
+            "scene34": { "panorama": "left_image34.JPG", "hotSpots": [{ "rotX": -31.63, "rotY": 23.61, "text": "2階非常階段", "sceneId": "scene33" }, { "rotX": -20.91, "rotY": -22.37, "text": "3階非常階段", "sceneId": "scene35" }] },
+            "scene33": { "panorama": "left_image33.JPG", "hotSpots": [{ "rotX": -29.50, "rotY": -138.92, "text": "1-2階_踊り場", "sceneId": "scene32" }, { "rotX": -14.21, "rotY": -188.65, "text": "2階-3階_踊り場", "sceneId": "scene34" }, { "rotX": -25.37, "rotY": 88.55, "text": "2階内部（準備中）" }] },
+            "scene32": { "panorama": "left_image32.JPG", "hotSpots": [{ "rotX": -32.01, "rotY": 33.03, "text": "1階非常階段前", "sceneId": "scene31" }, { "rotX": -25.00, "rotY": -22.10, "text": "2階非常階段", "sceneId": "scene33" }] },
+            "scene31": { "panorama": "left_image31.JPG", "hotSpots": [{ "rotX": -3.54, "rotY": -89.46, "text": "駐車場1", "sceneId": "scene36" }, { "rotX": -6.19, "rotY": -190.17, "text": "1-2階_踊り場", "sceneId": "scene32" }, { "rotX": -20.72, "rotY": 86.69, "text": "1階内部（準備中）" }] },
+            "scene36": { "panorama": "left_image36.JPG", "hotSpots": [{ "rotX": -12.05, "rotY": -87.92, "text": "駐車場2", "sceneId": "scene37" }, { "rotX": -16.92, "rotY": -267.44, "text": "1階非常階段前", "sceneId": "scene31" }] },
+            "scene37": { "panorama": "left_image37.JPG", "hotSpots": [{ "rotX": -2.70, "rotY": -14.84, "text": "駐車場3", "sceneId": "scene38" }, { "rotX": -15.92, "rotY": -180.33, "text": "駐車場1", "sceneId": "scene36" }] },
+            "scene38": { "panorama": "left_image38.JPG", "hotSpots": [{ "rotX": -3.46, "rotY": -0.15, "text": "学校入口", "sceneId": "scene39" }, { "rotX": -6.45, "rotY": -182.71, "text": "駐車場2", "sceneId": "scene37" }] },
+            "scene39": { "panorama": "left_image39.JPG", "hotSpots": [{ "rotX": -5.87, "rotY": 83.42, "text": "通路1", "sceneId": "scene40" }, { "rotX": -8.45, "rotY": -166.17, "text": "駐車場3", "sceneId": "scene38" }] },
+            "scene40": { "panorama": "left_image40.JPG", "hotSpots": [{ "rotX": -2.59, "rotY": 85.07, "text": "通路2", "sceneId": "scene4" }, { "rotX": -2.69, "rotY": -82.27, "text": "学校入口", "sceneId": "scene39" }, { "rotX": -6.51, "rotY": -187.08, "text": "校舎入口（準備中）" }] },
+            "scene4": { "panorama": "left_image4.JPG", "hotSpots": [{ "rotX": -4.83, "rotY": -254.15, "text": "運動場", "sceneId": "scene62" }, { "rotX": -3.27, "rotY": -91.29, "text": "通路1", "sceneId": "scene40" }, { "rotX": -3.76, "rotY": -181.98, "text": "通路3（準備中）" }, { "rotX": -6.98, "rotY": -4.37, "text": "体育館前通路（準備中）" }] },
+            "scene62": { "panorama": "left_image62.JPG", "hotSpots": [{ "rotX": 5.20, "rotY": -33.61, "text": "通路2", "sceneId": "scene4" }, { "rotX": 6.18, "rotY": -90.06, "text": "中央通路（準備中）" }, { "rotX": 7.09, "rotY": -118.72, "text": "朝礼台前通路（準備中）" }] }
         };
 
-        // シナリオ2（火災発生時）用のデータを生成
+        // シナリオ2（火災発生時）用のデータ
         const fireData = JSON.parse(JSON.stringify(commonData));
-        
-        // 指定されたシーンのみ火災用の画像に差替え
         fireData["scene66"].panorama = "fire_image66.JPG";
         fireData["scene57"].panorama = "fire_image57.JPG";
         fireData["scene60"].panorama = "fire_image60.JPG";
         fireData["scene61"].panorama = "fire_image61.JPG";
 
-        // シナリオデータの設定
+        // シナリオ3（津波発生時）用のデータ
+        const tsunamiData = JSON.parse(JSON.stringify(commonData));
+
         const scenarioData = {
             normal: JSON.parse(JSON.stringify(commonData)),
-            fire: fireData
+            fire: fireData,
+            tsunami: tsunamiData
         };
 
         function startScenario(scenarioName) {
             currentScenario = scenarioName;
             document.getElementById('start-menu').style.display = 'none';
-            loadScene('scene55');
+
+            // ----------------------------------------------------
+            // ★追加部分: カメラの向き（スタート時の視点）をリセット＆調整
+            // ----------------------------------------------------
+            const cameraEl = document.getElementById('camera');
+            if (cameraEl && cameraEl.components['look-controls']) {
+                // 一旦、上下・左右の角度を0（正面）にリセット
+                cameraEl.components['look-controls'].pitchObject.rotation.x = 0;
+                cameraEl.components['look-controls'].yawObject.rotation.y = 0;
+
+                // シナリオ3（津波）の場合だけ、左に90度（Math.PI / 2）回転させる
+                if (scenarioName === 'tsunami') {
+                    cameraEl.components['look-controls'].yawObject.rotation.y = Math.PI / 2;
+                    
+                    // ※もし右に90度向けたい場合は `-Math.PI / 2` にしてください。
+                    // ※180度真後ろに向けたい場合は `Math.PI` にします。
+                }
+            }
+
+            // シナリオに合わせて最初のスタートシーンを切り替える
+            if (scenarioName === 'tsunami') {
+                loadScene('scene62'); // 津波時は運動場からスタート
+            } else {
+                loadScene('scene55'); // 通常時・火災時は教室からスタート
+            }
         }
 
         function createJapaneseTextTexture(text) {
@@ -283,14 +209,18 @@
             const sceneData = scenarioData[currentScenario][sceneId];
             if (!sceneData) return;
 
-            // ----------------------------------------------------
-            // ★追加部分: 条件に合わせてメッセージUIの表示・非表示を切り替える
-            // ----------------------------------------------------
             const missionUi = document.getElementById('mission-ui');
+            
             if (currentScenario === 'fire' && sceneId === 'scene55') {
-                missionUi.style.display = 'block'; // 火災シナリオ ＆ scene55 の時だけ表示
+                missionUi.innerText = "資料室で火災発生！運動場まで避難しよう！";
+                missionUi.style.backgroundColor = "rgba(220, 0, 0, 0.85)";
+                missionUi.style.display = 'block';
+            } else if (currentScenario === 'tsunami' && sceneId === 'scene62') {
+                missionUi.innerText = "津波発生！校舎3階に避難しよう！";
+                missionUi.style.backgroundColor = "rgba(0, 80, 220, 0.85)";
+                missionUi.style.display = 'block';
             } else {
-                missionUi.style.display = 'none';  // それ以外のシーンや通常時は非表示
+                missionUi.style.display = 'none';
             }
 
             const sky = document.getElementById('sky');
