@@ -285,16 +285,17 @@
                         arrow.setAttribute('opacity', '0.6');
                     });
                 } else {
-                    // 準備中の場合は半透明でクリック不可
-                    arrow.setAttribute('opacity', '0.3');
+                    // シーンが設定されていない場合（準備中など）は半透明にする
+                    arrow.setAttribute('opacity', '0.2');
                 }
 
+                // テキストラベルの生成と配置
                 const textLabel = document.createElement('a-image');
                 textLabel.setAttribute('src', createJapaneseTextTexture(spot.text));
-                textLabel.setAttribute('position', '0 -0.5 -6');
-                textLabel.setAttribute('width', '2.5');
-                textLabel.setAttribute('height', '0.625');
+                textLabel.setAttribute('position', '0 -0.6 -6'); // 矢印の少し下に配置
+                textLabel.setAttribute('scale', '2 0.5 1'); // Canvasのアスペクト比(512:128)に合わせる
 
+                // 要素をラッパーに追加
                 wrapper.appendChild(arrow);
                 wrapper.appendChild(textLabel);
                 hotspotContainer.appendChild(wrapper);
