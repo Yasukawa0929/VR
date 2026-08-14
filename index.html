@@ -93,9 +93,8 @@
 
     <!-- VR空間 -->
     <a-scene cursor="rayOrigin: mouse">
-        <a-assets>
-            <img id="arrow-icon" src="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='rgba(255,255,255,0.3)' stroke='black' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'><circle cx='12' cy='12' r='10'></circle><line x1='12' y1='16' x2='12' y2='8'></line><polyline points='8 12 12 8 16 12'></polyline></svg>">
-        </a-assets>
+        <!-- SVGの矢印はVRでのバグの原因になるため削除し、JS内でCanvasとして生成します -->
+        <a-assets></a-assets>
 
         <a-sky id="sky" src="" rotation="0 180 0" animation__fade="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: sceneloaded"></a-sky>
 
@@ -118,7 +117,6 @@
     <script>
         let currentScenario = 'normal';
 
-        // 共通のベースデータ
         const commonData = {
             "scene55": { "panorama": "left_image55.JPG", "hotSpots": [{ "rotX": -9.67, "rotY": -87.11, "text": "教室前通路", "sceneId": "scene66" }] },
             "scene66": { "panorama": "left_image66.JPG", "hotSpots": [{ "rotX": -17.14, "rotY": -28.62, "text": "3階非常階段", "sceneId": "scene35" }, { "rotX": -14.73, "rotY": 86.68, "text": "教室", "sceneId": "scene55" }, { "rotX": -3.00, "rotY": -183.73, "text": "3階通路1", "sceneId": "scene57" }] },
@@ -128,8 +126,6 @@
                 { "rotX": -13.42, "rotY": -250.27, "text": "2-3階踊り場", "sceneId": "scene54" },
                 { "rotX": -1.45, "rotY": -5.89, "text": "3階通路2", "sceneId": "scene60" }
             ]},
-
-            // ★新規追加 54～19 (縦+10、横-90反転の公式を適用済)
             "scene54": { "panorama": "left_image54.JPG", "hotSpots": [
                 { "rotX": -35.86, "rotY": -59.84, "text": "2階階段", "sceneId": "scene53" },
                 { "rotX": -20.85, "rotY": -122.60, "text": "3階階段", "sceneId": "scene61" }
@@ -153,8 +149,6 @@
                 { "rotX": -5.46, "rotY": -182.02, "text": "未準備通路２（準備中）" }, 
                 { "rotX": -1.18, "rotY": -1.46, "text": "未準備通路３（準備中）" } 
             ]},
-
-            // 既存の非常階段・外回りデータ
             "scene35": { "panorama": "left_image35.JPG", "hotSpots": [{ "rotX": -31.88, "rotY": -141.44, "text": "2階-3階_踊り場", "sceneId": "scene34" }, { "rotX": -17.54, "rotY": 85.21, "text": "教室前通路", "sceneId": "scene66" }] },
             "scene34": { "panorama": "left_image34.JPG", "hotSpots": [{ "rotX": -31.63, "rotY": 23.61, "text": "2階非常階段", "sceneId": "scene33" }, { "rotX": -20.91, "rotY": -22.37, "text": "3階非常階段", "sceneId": "scene35" }] },
             "scene33": { "panorama": "left_image33.JPG", "hotSpots": [{ "rotX": -29.50, "rotY": -138.92, "text": "1-2階_踊り場", "sceneId": "scene32" }, { "rotX": -14.21, "rotY": -188.65, "text": "2階-3階_踊り場", "sceneId": "scene34" }, { "rotX": -25.37, "rotY": 88.55, "text": "2階内部（準備中）" }] },
@@ -173,14 +167,12 @@
             ]}
         };
 
-        // シナリオ2（火災発生時）用のデータ
         const fireData = JSON.parse(JSON.stringify(commonData));
         fireData["scene66"].panorama = "fire_image66.JPG";
         fireData["scene57"].panorama = "fire_image57.JPG";
         fireData["scene60"].panorama = "fire_image60.JPG";
         fireData["scene61"].panorama = "fire_image61.JPG";
 
-        // シナリオ3（津波発生時）用のデータ
         const tsunamiData = JSON.parse(JSON.stringify(commonData));
 
         const scenarioData = {
@@ -193,26 +185,24 @@
             currentScenario = scenarioName;
             document.getElementById('start-menu').style.display = 'none';
 
-            // カメラの向き（スタート時の視点）をリセット＆調整
             const cameraEl = document.getElementById('camera');
             if (cameraEl && cameraEl.components['look-controls']) {
                 cameraEl.components['look-controls'].pitchObject.rotation.x = 0;
                 cameraEl.components['look-controls'].yawObject.rotation.y = 0;
 
-                // シナリオ3（津波）の場合だけ、左に90度回転させる
                 if (scenarioName === 'tsunami') {
                     cameraEl.components['look-controls'].yawObject.rotation.y = Math.PI / 2;
                 }
             }
 
-            // シナリオに合わせて最初のスタートシーンを切り替える
             if (scenarioName === 'tsunami') {
-                loadScene('scene62'); // 津波時は運動場からスタート
+                loadScene('scene62');
             } else {
-                loadScene('scene55'); // 通常時・火災時は教室からスタート
+                loadScene('scene55');
             }
         }
 
+        // 看板のテキスト画像を生成
         function createJapaneseTextTexture(text) {
             const canvas = document.createElement('canvas');
             canvas.width = 512;
@@ -229,6 +219,38 @@
             ctx.textBaseline = 'middle';
             ctx.fillText(text, 256, 64);
             
+            return canvas.toDataURL();
+        }
+
+        // 矢印の画像を生成（SVGをやめてCanvasで描画することでVRでの透過バグを回避）
+        function createArrowTexture() {
+            const canvas = document.createElement('canvas');
+            canvas.width = 256;
+            canvas.height = 256;
+            const ctx = canvas.getContext('2d');
+
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
+            ctx.strokeStyle = 'black';
+            ctx.lineWidth = 8;
+            ctx.beginPath();
+            ctx.arc(128, 128, 110, 0, Math.PI * 2);
+            ctx.fill();
+            ctx.stroke();
+
+            ctx.lineWidth = 14;
+            ctx.lineCap = 'round';
+            ctx.lineJoin = 'round';
+            ctx.beginPath();
+            ctx.moveTo(128, 180);
+            ctx.lineTo(128, 76);
+            ctx.stroke();
+
+            ctx.beginPath();
+            ctx.moveTo(86, 118);
+            ctx.lineTo(128, 76);
+            ctx.lineTo(170, 118);
+            ctx.stroke();
+
             return canvas.toDataURL();
         }
 
@@ -260,13 +282,17 @@
             sceneData.hotSpots.forEach(spot => {
                 const wrapper = document.createElement('a-entity');
                 wrapper.setAttribute('rotation', `${spot.rotX} ${spot.rotY} 0`);
+                // VRモードに入った時にカメラ位置が高くなりすぎて矢印が見切れるのを防止
+                wrapper.setAttribute('position', '0 1.6 0'); 
 
                 const arrow = document.createElement('a-image');
-                arrow.setAttribute('src', '#arrow-icon');
+                arrow.setAttribute('src', createArrowTexture());
                 arrow.setAttribute('position', '0 0.5 -6');
-                arrow.setAttribute('scale', '1 1 1');
+                arrow.setAttribute('width', '1');
+                arrow.setAttribute('height', '1');
+                // VR空間でのアルファテスト（透過バグ）防止
+                arrow.setAttribute('material', 'transparent: true; alphaTest: 0.1');
                 
-                // 次のシーン(sceneId)が設定されている場合はクリック可能にする
                 if (spot.sceneId) {
                     arrow.setAttribute('class', 'clickable');
                     arrow.setAttribute('opacity', '0.6');
@@ -285,17 +311,17 @@
                         arrow.setAttribute('opacity', '0.6');
                     });
                 } else {
-                    // シーンが設定されていない場合（準備中など）は半透明にする
-                    arrow.setAttribute('opacity', '0.2');
+                    arrow.setAttribute('opacity', '0.3');
                 }
 
-                // テキストラベルの生成と配置
                 const textLabel = document.createElement('a-image');
                 textLabel.setAttribute('src', createJapaneseTextTexture(spot.text));
-                textLabel.setAttribute('position', '0 -0.6 -6'); // 矢印の少し下に配置
-                textLabel.setAttribute('scale', '2 0.5 1'); // Canvasのアスペクト比(512:128)に合わせる
+                textLabel.setAttribute('position', '0 -0.5 -6');
+                textLabel.setAttribute('width', '2.5');
+                textLabel.setAttribute('height', '0.625');
+                // テキスト看板のVR空間でのアルファテスト（透過バグ）防止
+                textLabel.setAttribute('material', 'transparent: true; alphaTest: 0.1');
 
-                // 要素をラッパーに追加
                 wrapper.appendChild(arrow);
                 wrapper.appendChild(textLabel);
                 hotspotContainer.appendChild(wrapper);
