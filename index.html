@@ -93,7 +93,6 @@
 
     <!-- VR空間 -->
     <a-scene cursor="rayOrigin: mouse">
-        <!-- SVGの矢印はVRでのバグの原因になるため削除し、JS内でCanvasとして生成します -->
         <a-assets></a-assets>
 
         <a-sky id="sky" src="" rotation="0 180 0" animation__fade="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: sceneloaded"></a-sky>
@@ -141,7 +140,7 @@
             "scene51": { "panorama": "left_image51.JPG", "hotSpots": [
                 { "rotX": -10.00, "rotY": -258.30, "text": "朝礼台前通路", "sceneId": "scene19" },
                 { "rotX": -4.55, "rotY": 73.94, "text": "1-2階踊り場", "sceneId": "scene52" },
-                { "rotX": -7.67, "rotY": -1.27, "text": "未準備通路１（準備中）" } 
+                { "rotX": -7.67, "rotY": -1.27, "text": "1階通路7", "sceneId": "scene50" } 
             ]},
             "scene19": { "panorama": "left_image19.JPG", "hotSpots": [
                 { "rotX": 0.07, "rotY": -269.51, "text": "運動場", "sceneId": "scene62" },
@@ -153,12 +152,20 @@
             "scene34": { "panorama": "left_image34.JPG", "hotSpots": [{ "rotX": -31.63, "rotY": 23.61, "text": "2階非常階段", "sceneId": "scene33" }, { "rotX": -20.91, "rotY": -22.37, "text": "3階非常階段", "sceneId": "scene35" }] },
             "scene33": { "panorama": "left_image33.JPG", "hotSpots": [{ "rotX": -29.50, "rotY": -138.92, "text": "1-2階_踊り場", "sceneId": "scene32" }, { "rotX": -14.21, "rotY": -188.65, "text": "2階-3階_踊り場", "sceneId": "scene34" }, { "rotX": -25.37, "rotY": 88.55, "text": "2階内部（準備中）" }] },
             "scene32": { "panorama": "left_image32.JPG", "hotSpots": [{ "rotX": -32.01, "rotY": 33.03, "text": "1階非常階段前", "sceneId": "scene31" }, { "rotX": -25.00, "rotY": -22.10, "text": "2階非常階段", "sceneId": "scene33" }] },
-            "scene31": { "panorama": "left_image31.JPG", "hotSpots": [{ "rotX": -3.54, "rotY": -89.46, "text": "駐車場1", "sceneId": "scene36" }, { "rotX": -6.19, "rotY": -190.17, "text": "1-2階_踊り場", "sceneId": "scene32" }, { "rotX": -20.72, "rotY": 86.69, "text": "1階内部（準備中）" }] },
+            "scene31": { "panorama": "left_image31.JPG", "hotSpots": [{ "rotX": -3.54, "rotY": -89.46, "text": "駐車場1", "sceneId": "scene36" }, { "rotX": -6.19, "rotY": -190.17, "text": "1-2階_踊り場", "sceneId": "scene32" }, { "rotX": -20.72, "rotY": 86.69, "text": "1階通路2", "sceneId": "scene45" }] },
             "scene36": { "panorama": "left_image36.JPG", "hotSpots": [{ "rotX": -12.05, "rotY": -87.92, "text": "駐車場2", "sceneId": "scene37" }, { "rotX": -16.92, "rotY": -267.44, "text": "1階非常階段前", "sceneId": "scene31" }] },
             "scene37": { "panorama": "left_image37.JPG", "hotSpots": [{ "rotX": -2.70, "rotY": -14.84, "text": "駐車場3", "sceneId": "scene38" }, { "rotX": -15.92, "rotY": -180.33, "text": "駐車場1", "sceneId": "scene36" }] },
             "scene38": { "panorama": "left_image38.JPG", "hotSpots": [{ "rotX": -3.46, "rotY": -0.15, "text": "学校入口", "sceneId": "scene39" }, { "rotX": -6.45, "rotY": -182.71, "text": "駐車場2", "sceneId": "scene37" }] },
             "scene39": { "panorama": "left_image39.JPG", "hotSpots": [{ "rotX": -5.87, "rotY": 83.42, "text": "通路1", "sceneId": "scene40" }, { "rotX": -8.45, "rotY": -166.17, "text": "駐車場3", "sceneId": "scene38" }] },
-            "scene40": { "panorama": "left_image40.JPG", "hotSpots": [{ "rotX": -2.59, "rotY": 85.07, "text": "通路2", "sceneId": "scene4" }, { "rotX": -2.69, "rotY": -82.27, "text": "学校入口", "sceneId": "scene39" }, { "rotX": -6.51, "rotY": -187.08, "text": "校舎入口（準備中）" }] },
+            "scene40": { "panorama": "left_image40.JPG", "hotSpots": [{ "rotX": -2.59, "rotY": 85.07, "text": "通路2", "sceneId": "scene4" }, { "rotX": -2.69, "rotY": -82.27, "text": "学校入口", "sceneId": "scene39" }, { "rotX": -6.51, "rotY": -187.08, "text": "校舎入口", "sceneId": "scene41" }] },
+            "scene41": { "panorama": "left_image41.JPG", "hotSpots": [{ "rotX": -15.64, "rotY": -188.30, "text": "1階通路1", "sceneId": "scene44" }, { "rotX": -8.56, "rotY": -4.48, "text": "通路1", "sceneId": "scene40" }] },
+            "scene44": { "panorama": "left_image44.JPG", "hotSpots": [{ "rotX": -5.91, "rotY": -179.67, "text": "1階通路2", "sceneId": "scene45" }, { "rotX": -12.75, "rotY": 1.73, "text": "校舎入口", "sceneId": "scene41" }] },
+            "scene45": { "panorama": "left_image45.JPG", "hotSpots": [{ "rotX": -3.06, "rotY": -192.45, "text": "1階通路3", "sceneId": "scene46" }, { "rotX": -6.03, "rotY": -6.93, "text": "1階通路1", "sceneId": "scene44" }, { "rotX": -6.56, "rotY": -77.01, "text": "1階非常階段前", "sceneId": "scene31" }] },
+            "scene46": { "panorama": "left_image46.JPG", "hotSpots": [{ "rotX": -4.76, "rotY": -188.07, "text": "1階通路4", "sceneId": "scene47" }, { "rotX": -7.55, "rotY": -7.16, "text": "1階通路2", "sceneId": "scene45" }] },
+            "scene47": { "panorama": "left_image47.JPG", "hotSpots": [{ "rotX": -3.99, "rotY": -183.72, "text": "1階通路5", "sceneId": "scene48" }, { "rotX": -4.26, "rotY": -3.83, "text": "1階通路3", "sceneId": "scene46" }] },
+            "scene48": { "panorama": "left_image48.JPG", "hotSpots": [{ "rotX": -3.49, "rotY": -190.51, "text": "1階通路6", "sceneId": "scene49" }, { "rotX": -5.35, "rotY": -11.92, "text": "1階通路4", "sceneId": "scene47" }] },
+            "scene49": { "panorama": "left_image49.JPG", "hotSpots": [{ "rotX": -2.68, "rotY": -183.64, "text": "1階通路7", "sceneId": "scene50" }, { "rotX": -4.22, "rotY": -4.23, "text": "1階通路5", "sceneId": "scene48" }] },
+            "scene50": { "panorama": "left_image50.JPG", "hotSpots": [{ "rotX": -13.74, "rotY": -182.74, "text": "1階階段", "sceneId": "scene51" }, { "rotX": -8.65, "rotY": -1.71, "text": "1階通路6", "sceneId": "scene49" }] },
             "scene4": { "panorama": "left_image4.JPG", "hotSpots": [{ "rotX": -4.83, "rotY": -254.15, "text": "運動場", "sceneId": "scene62" }, { "rotX": -3.27, "rotY": -91.29, "text": "通路1", "sceneId": "scene40" }, { "rotX": -3.76, "rotY": -181.98, "text": "通路3（準備中）" }, { "rotX": -6.98, "rotY": -4.37, "text": "体育館前通路（準備中）" }] },
             "scene62": { "panorama": "left_image62.JPG", "hotSpots": [
                 { "rotX": 5.20, "rotY": -33.61, "text": "通路2", "sceneId": "scene4" }, 
@@ -202,7 +209,6 @@
             }
         }
 
-        // 看板のテキスト画像を生成
         function createJapaneseTextTexture(text) {
             const canvas = document.createElement('canvas');
             canvas.width = 512;
@@ -222,7 +228,6 @@
             return canvas.toDataURL();
         }
 
-        // 矢印の画像を生成（SVGをやめてCanvasで描画することでVRでの透過バグを回避）
         function createArrowTexture() {
             const canvas = document.createElement('canvas');
             canvas.width = 256;
@@ -282,7 +287,6 @@
             sceneData.hotSpots.forEach(spot => {
                 const wrapper = document.createElement('a-entity');
                 wrapper.setAttribute('rotation', `${spot.rotX} ${spot.rotY} 0`);
-                // VRモードに入った時にカメラ位置が高くなりすぎて矢印が見切れるのを防止
                 wrapper.setAttribute('position', '0 1.6 0'); 
 
                 const arrow = document.createElement('a-image');
@@ -290,7 +294,6 @@
                 arrow.setAttribute('position', '0 0.5 -6');
                 arrow.setAttribute('width', '1');
                 arrow.setAttribute('height', '1');
-                // VR空間でのアルファテスト（透過バグ）防止
                 arrow.setAttribute('material', 'transparent: true; alphaTest: 0.1');
                 
                 if (spot.sceneId) {
@@ -319,7 +322,6 @@
                 textLabel.setAttribute('position', '0 -0.5 -6');
                 textLabel.setAttribute('width', '2.5');
                 textLabel.setAttribute('height', '0.625');
-                // テキスト看板のVR空間でのアルファテスト（透過バグ）防止
                 textLabel.setAttribute('material', 'transparent: true; alphaTest: 0.1');
 
                 wrapper.appendChild(arrow);
