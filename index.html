@@ -95,6 +95,7 @@
     <a-scene cursor="rayOrigin: mouse">
         <a-assets></a-assets>
 
+        <!-- 背景画像 -->
         <a-sky id="sky" src="" rotation="0 180 0" animation__fade="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: sceneloaded"></a-sky>
 
         <a-entity id="hotspots"></a-entity>
@@ -116,76 +117,58 @@
     <script>
         let currentScenario = 'normal';
 
+        // ★ 方角の全体調整用パラメータ（度単位）
+        // マイナスの値で右回転、プラスの値で左回転になります。
+        // （例: -90 = 右に90度ずらす / 90 = 左に90度ずらす）
+        const yawOffset = -90; 
+
+        // 座標データ（元の数値のまま変更しなくて大丈夫です）
         const commonData = {
-            "scene55": { "panorama": "left_image55.JPG", "hotSpots": [{ "rotX": -9.67, "rotY": -87.11, "text": "5年生教室前", "sceneId": "scene66" }] },
-            "scene66": { "panorama": "left_image66.JPG", "hotSpots": [{ "rotX": -17.14, "rotY": -28.62, "text": "3階非常階段", "sceneId": "scene35" }, { "rotX": -14.73, "rotY": 86.68, "text": "5年生教室", "sceneId": "scene55" }, { "rotX": -3.00, "rotY": -183.73, "text": "3年生教室前", "sceneId": "scene57" }] },
-            "scene57": { "panorama": "left_image57.JPG", "hotSpots": [{ "rotX": -1.84, "rotY": -183.19, "text": "3階トイレ前", "sceneId": "scene60" }, { "rotX": -8.77, "rotY": -4.28, "text": "5年生教室前", "sceneId": "scene66" }] },
-            "scene60": { "panorama": "left_image60.JPG", "hotSpots": [{ "rotX": -2.25, "rotY": -190.72, "text": "3階階段", "sceneId": "scene61" }, { "rotX": -4.90, "rotY": -12.63, "text": "3年生教室前", "sceneId": "scene57" }] },
-            "scene61": { "panorama": "left_image61.JPG", "hotSpots": [
-                { "rotX": -13.42, "rotY": -250.27, "text": "2-3階踊り場", "sceneId": "scene54" },
-                { "rotX": -1.45, "rotY": -5.89, "text": "3階トイレ前", "sceneId": "scene60" }
-            ]},
-            "scene54": { "panorama": "left_image54.JPG", "hotSpots": [
-                { "rotX": -35.86, "rotY": -59.84, "text": "2階階段", "sceneId": "scene53" },
-                { "rotX": -20.85, "rotY": -122.60, "text": "3階階段", "sceneId": "scene61" }
-            ]},
-            "scene53": { "panorama": "left_image53.JPG", "hotSpots": [
-                { "rotX": -20.70, "rotY": -259.21, "text": "1-2階踊り場", "sceneId": "scene52" },
-                { "rotX": -9.88, "rotY": 67.54, "text": "2-3階踊り場", "sceneId": "scene54" }
-            ]},
-            "scene52": { "panorama": "left_image52.JPG", "hotSpots": [
-                { "rotX": -35.63, "rotY": -58.50, "text": "1階階段", "sceneId": "scene51" },
-                { "rotX": -16.34, "rotY": -117.38, "text": "2階階段", "sceneId": "scene53" }
-            ]},
-            "scene51": { "panorama": "left_image51.JPG", "hotSpots": [
-                { "rotX": -10.00, "rotY": -258.30, "text": "朝礼台前通路", "sceneId": "scene19" },
-                { "rotX": -4.55, "rotY": 73.94, "text": "1-2階踊り場", "sceneId": "scene52" },
-                { "rotX": -7.67, "rotY": -1.27, "text": "1階トイレ前", "sceneId": "scene50" } 
-            ]},
-            "scene19": { "panorama": "left_image19.JPG", "hotSpots": [
-                { "rotX": 0.07, "rotY": -269.51, "text": "運動場", "sceneId": "scene62" },
-                { "rotX": -5.18, "rotY": -103.61, "text": "1階階段", "sceneId": "scene51" },
-                { "rotX": -5.46, "rotY": -182.02, "text": "未準備通路２（準備中）" }, 
-                { "rotX": -1.18, "rotY": -1.46, "text": "未準備通路３（準備中）" } 
-            ]},
-            "scene35": { "panorama": "left_image35.JPG", "hotSpots": [{ "rotX": -31.88, "rotY": -141.44, "text": "2階-3階_踊り場", "sceneId": "scene34" }, { "rotX": -17.54, "rotY": 85.21, "text": "5年生教室前", "sceneId": "scene66" }] },
-            "scene34": { "panorama": "left_image34.JPG", "hotSpots": [{ "rotX": -31.63, "rotY": 23.61, "text": "2階非常階段", "sceneId": "scene33" }, { "rotX": -20.91, "rotY": -22.37, "text": "3階非常階段", "sceneId": "scene35" }] },
-            "scene33": { "panorama": "left_image33.JPG", "hotSpots": [{ "rotX": -29.50, "rotY": -138.92, "text": "1-2階_踊り場", "sceneId": "scene32" }, { "rotX": -14.21, "rotY": -188.65, "text": "2階-3階_踊り場", "sceneId": "scene34" }, { "rotX": -25.37, "rotY": 88.55, "text": "2階内部（準備中）" }] },
-            "scene32": { "panorama": "left_image32.JPG", "hotSpots": [{ "rotX": -32.01, "rotY": 33.03, "text": "1階非常階段前", "sceneId": "scene31" }, { "rotX": -25.00, "rotY": -22.10, "text": "2階非常階段", "sceneId": "scene33" }] },
-            "scene31": { "panorama": "left_image31.JPG", "hotSpots": [{ "rotX": -3.54, "rotY": -89.46, "text": "駐車場1", "sceneId": "scene36" }, { "rotX": -6.19, "rotY": -190.17, "text": "1-2階_踊り場", "sceneId": "scene32" }, { "rotX": -20.72, "rotY": 86.69, "text": "1階通路", "sceneId": "scene45" }] },
-            "scene36": { "panorama": "left_image36.JPG", "hotSpots": [{ "rotX": -12.05, "rotY": -87.92, "text": "駐車場2", "sceneId": "scene37" }, { "rotX": -16.92, "rotY": -267.44, "text": "1階非常階段前", "sceneId": "scene31" }] },
-            "scene37": { "panorama": "left_image37.JPG", "hotSpots": [{ "rotX": -2.70, "rotY": -14.84, "text": "駐車場3", "sceneId": "scene38" }, { "rotX": -15.92, "rotY": -180.33, "text": "駐車場1", "sceneId": "scene36" }] },
-            "scene38": { "panorama": "left_image38.JPG", "hotSpots": [{ "rotX": -3.46, "rotY": -0.15, "text": "学校入口", "sceneId": "scene39" }, { "rotX": -6.45, "rotY": -182.71, "text": "駐車場2", "sceneId": "scene37" }] },
-            "scene39": { "panorama": "left_image39.JPG", "hotSpots": [{ "rotX": -5.87, "rotY": 83.42, "text": "通路1", "sceneId": "scene40" }, { "rotX": -8.45, "rotY": -166.17, "text": "駐車場3", "sceneId": "scene38" }] },
-            "scene40": { "panorama": "left_image40.JPG", "hotSpots": [{ "rotX": -2.59, "rotY": 85.07, "text": "通路2", "sceneId": "scene4" }, { "rotX": -2.69, "rotY": -82.27, "text": "学校入口", "sceneId": "scene39" }, { "rotX": -6.51, "rotY": -187.08, "text": "校舎入口", "sceneId": "scene41" }] },
-            "scene41": { "panorama": "left_image41.JPG", "hotSpots": [{ "rotX": -15.64, "rotY": -188.30, "text": "事務室前", "sceneId": "scene44" }, { "rotX": -8.56, "rotY": -4.48, "text": "通路1", "sceneId": "scene40" }] },
-            "scene44": { "panorama": "left_image44.JPG", "hotSpots": [{ "rotX": -5.91, "rotY": -179.67, "text": "1階通路", "sceneId": "scene45" }, { "rotX": -12.75, "rotY": 1.73, "text": "校舎入口", "sceneId": "scene41" }] },
-            "scene45": { "panorama": "left_image45.JPG", "hotSpots": [{ "rotX": -3.06, "rotY": -192.45, "text": "校長室前", "sceneId": "scene46" }, { "rotX": -6.03, "rotY": -6.93, "text": "事務室前", "sceneId": "scene44" }, { "rotX": -6.56, "rotY": -77.01, "text": "1階非常階段前", "sceneId": "scene31" }] },
-            "scene46": { "panorama": "left_image46.JPG", "hotSpots": [{ "rotX": -4.76, "rotY": -188.07, "text": "職員室前1", "sceneId": "scene47" }, { "rotX": -7.55, "rotY": -7.16, "text": "1階通路", "sceneId": "scene45" }] },
-            "scene47": { "panorama": "left_image47.JPG", "hotSpots": [{ "rotX": -3.99, "rotY": -183.72, "text": "職員室前2", "sceneId": "scene48" }, { "rotX": -4.26, "rotY": -3.83, "text": "校長室前", "sceneId": "scene46" }] },
-            "scene48": { "panorama": "left_image48.JPG", "hotSpots": [{ "rotX": -3.49, "rotY": -190.51, "text": "印刷室前", "sceneId": "scene49" }, { "rotX": -5.35, "rotY": -11.92, "text": "職員室前1", "sceneId": "scene47" }] },
-            "scene49": { "panorama": "left_image49.JPG", "hotSpots": [{ "rotX": -2.68, "rotY": -183.64, "text": "1階トイレ前", "sceneId": "scene50" }, { "rotX": -4.22, "rotY": -4.23, "text": "職員室前2", "sceneId": "scene48" }] },
-            "scene50": { "panorama": "left_image50.JPG", "hotSpots": [{ "rotX": -13.74, "rotY": -182.74, "text": "1階階段", "sceneId": "scene51" }, { "rotX": -8.65, "rotY": -1.71, "text": "印刷室前", "sceneId": "scene49" }] },
-            "scene4": { "panorama": "left_image4.JPG", "hotSpots": [{ "rotX": -4.83, "rotY": -254.15, "text": "運動場", "sceneId": "scene62" }, { "rotX": -3.27, "rotY": -91.29, "text": "通路1", "sceneId": "scene40" }, { "rotX": -3.76, "rotY": -181.98, "text": "通路3（準備中）" }, { "rotX": -6.98, "rotY": -4.37, "text": "体育館前通路（準備中）" }] },
-            "scene62": { "panorama": "left_image62.JPG", "hotSpots": [
-                { "rotX": 5.20, "rotY": -33.61, "text": "通路2", "sceneId": "scene4" }, 
-                { "rotX": 6.18, "rotY": -90.06, "text": "中央通路（準備中）" }, 
-                { "rotX": 7.09, "rotY": -118.72, "text": "朝礼台前通路", "sceneId": "scene19" } 
-            ]}
+            "scene1": {
+                "panorama": "1.JPG",
+                "hotSpots": [
+                    { "rotX": -11.61, "rotY": -175.17, "text": "部屋内" }, 
+                    { "rotX": -10.12, "rotY": -90.30, "text": "バルコニー" },
+                    { "rotX": -13.40, "rotY": 66.04, "text": "階段側", "sceneId": "scene2" }
+                ]
+            },
+            "scene2": {
+                "panorama": "2.JPG",
+                "hotSpots": [
+                    { "rotX": -21.30, "rotY": 40.47, "text": "階段側", "sceneId": "scene3" },
+                    { "rotX": -15.01, "rotY": -122.70, "text": "4402前", "sceneId": "scene1" }
+                ]
+            },
+            "scene3": {
+                "panorama": "3.JPG",
+                "hotSpots": [
+                    { "rotX": -14.98, "rotY": 18.65, "text": "4-5階踊り場" },
+                    { "rotX": -14.98, "rotY": -11.45, "text": "3-4階踊り場", "sceneId": "scene4" },
+                    { "rotX": -17.30, "rotY": 92.09, "text": "4403前" },
+                    { "rotX": -9.80, "rotY": -126.02, "text": "4階エレベーター前1", "sceneId": "scene2" }
+                ]
+            },
+            "scene4": {
+                "panorama": "4.JPG",
+                "hotSpots": [
+                    { "rotX": -10.80, "rotY": -154.52, "text": "4階階段", "sceneId": "scene3" },
+                    { "rotX": -33.41, "rotY": 168.37, "text": "3階階段", "sceneId": "scene5" }
+                ]
+            },
+            "scene5": {
+                "panorama": "5.JPG",
+                "hotSpots": [
+                    { "rotX": -14.98, "rotY": 18.65, "text": "3-4階踊り場", "sceneId": "scene4" },
+                    { "rotX": -14.98, "rotY": -11.45, "text": "2-3階踊り場" },
+                    { "rotX": -19.01, "rotY": -161.48, "text": "3階エレベーター前" }
+                ]
+            }
         };
-
-        const fireData = JSON.parse(JSON.stringify(commonData));
-        fireData["scene66"].panorama = "fire_image66.JPG";
-        fireData["scene57"].panorama = "fire_image57.JPG";
-        fireData["scene60"].panorama = "fire_image60.JPG";
-        fireData["scene61"].panorama = "fire_image61.JPG";
-
-        const tsunamiData = JSON.parse(JSON.stringify(commonData));
 
         const scenarioData = {
             normal: JSON.parse(JSON.stringify(commonData)),
-            fire: fireData,
-            tsunami: tsunamiData
+            fire: JSON.parse(JSON.stringify(commonData)),
+            tsunami: JSON.parse(JSON.stringify(commonData))
         };
 
         function startScenario(scenarioName) {
@@ -195,18 +178,13 @@
             const cameraEl = document.getElementById('camera');
             if (cameraEl && cameraEl.components['look-controls']) {
                 cameraEl.components['look-controls'].pitchObject.rotation.x = 0;
-                cameraEl.components['look-controls'].yawObject.rotation.y = 0;
-
-                if (scenarioName === 'tsunami') {
-                    cameraEl.components['look-controls'].yawObject.rotation.y = Math.PI / 2;
-                }
+                
+                // ★ スタート時のカメラの向きを yawOffset に合わせてずらす
+                cameraEl.components['look-controls'].yawObject.rotation.y = yawOffset * (Math.PI / 180);
             }
 
-            if (scenarioName === 'tsunami') {
-                loadScene('scene62');
-            } else {
-                loadScene('scene55');
-            }
+            // シナリオに関わらず、全て1.JPGからスタートする
+            loadScene('scene1');
         }
 
         function createJapaneseTextTexture(text) {
@@ -265,12 +243,12 @@
 
             const missionUi = document.getElementById('mission-ui');
             
-            if (currentScenario === 'fire' && sceneId === 'scene55') {
-                missionUi.innerText = "資料室で火災発生！運動場まで避難しよう！";
+            if (currentScenario === 'fire' && sceneId === 'scene1') {
+                missionUi.innerText = "火災発生！直ちに避難しよう！";
                 missionUi.style.backgroundColor = "rgba(220, 0, 0, 0.85)";
                 missionUi.style.display = 'block';
-            } else if (currentScenario === 'tsunami' && sceneId === 'scene62') {
-                missionUi.innerText = "津波発生！校舎3階に避難しよう！";
+            } else if (currentScenario === 'tsunami' && sceneId === 'scene1') {
+                missionUi.innerText = "津波発生！高層階に避難しよう！";
                 missionUi.style.backgroundColor = "rgba(0, 80, 220, 0.85)";
                 missionUi.style.display = 'block';
             } else {
@@ -286,7 +264,9 @@
 
             sceneData.hotSpots.forEach(spot => {
                 const wrapper = document.createElement('a-entity');
-                wrapper.setAttribute('rotation', `${spot.rotX} ${spot.rotY} 0`);
+                
+                // ★ 矢印を配置する際にも yawOffset の角度を足してずらす
+                wrapper.setAttribute('rotation', `${spot.rotX} ${spot.rotY + yawOffset} 0`);
                 wrapper.setAttribute('position', '0 1.6 0'); 
 
                 const arrow = document.createElement('a-image');
