@@ -117,12 +117,10 @@
     <script>
         let currentScenario = 'normal';
 
-        // ★ 方角の全体調整用パラメータ（度単位）
-        // マイナスの値で右回転、プラスの値で左回転になります。
-        // （例: -90 = 右に90度ずらす / 90 = 左に90度ずらす）
+        // ★ 方角調整用オフセット
         const yawOffset = -90; 
 
-        // 座標データ（元の数値のまま変更しなくて大丈夫です）
+        // 6〜22（18除く）までの追加データ
         const commonData = {
             "scene1": {
                 "panorama": "1.JPG",
@@ -159,8 +157,135 @@
                 "panorama": "5.JPG",
                 "hotSpots": [
                     { "rotX": -14.98, "rotY": 18.65, "text": "3-4階踊り場", "sceneId": "scene4" },
-                    { "rotX": -14.98, "rotY": -11.45, "text": "2-3階踊り場" },
+                    { "rotX": -14.98, "rotY": -11.45, "text": "2-3階踊り場", "sceneId": "scene9" },
                     { "rotX": -19.01, "rotY": -161.48, "text": "3階エレベーター前" }
+                ]
+            },
+            "scene6": {
+                "panorama": "6.JPG",
+                "hotSpots": [
+                    { "rotX": -12.09, "rotY": -91.27, "text": "未名称1" },
+                    { "rotX": -12.30, "rotY": 88.87, "text": "戻り", "sceneId": "scene5" }
+                ]
+            },
+            "scene7": {
+                "panorama": "7.JPG",
+                "hotSpots": [
+                    { "rotX": -13.81, "rotY": -89.29, "text": "未名称2" },
+                    { "rotX": -8.80, "rotY": 90.15, "text": "戻り", "sceneId": "scene6" }
+                ]
+            },
+            "scene8": {
+                "panorama": "8.JPG",
+                "hotSpots": [
+                    { "rotX": -3.95, "rotY": -89.16, "text": "4階バルコニー前1" },
+                    { "rotX": -10.02, "rotY": 90.58, "text": "戻り", "sceneId": "scene7" }
+                ]
+            },
+            "scene9": {
+                "panorama": "9.JPG",
+                "hotSpots": [
+                    { "rotX": -13.44, "rotY": -153.18, "text": "戻り", "sceneId": "scene5" },
+                    { "rotX": -33.19, "rotY": 166.93, "text": "2階階段", "sceneId": "scene10" }
+                ]
+            },
+            "scene10": {
+                "panorama": "10.JPG",
+                "hotSpots": [
+                    { "rotX": -14.98, "rotY": 18.65, "text": "戻り", "sceneId": "scene9" },
+                    { "rotX": -14.98, "rotY": -11.45, "text": "1-2階踊り場", "sceneId": "scene11" },
+                    { "rotX": -15.27, "rotY": 90.18, "text": "未名称3" },
+                    { "rotX": -13.65, "rotY": -143.52, "text": "未名称4" }
+                ]
+            },
+            "scene11": {
+                "panorama": "11.JPG",
+                "hotSpots": [
+                    { "rotX": -13.44, "rotY": -153.18, "text": "戻り", "sceneId": "scene10" },
+                    { "rotX": -33.19, "rotY": 166.93, "text": "1階階段", "sceneId": "scene12" }
+                ]
+            },
+            "scene12": {
+                "panorama": "12.JPG",
+                "hotSpots": [
+                    { "rotX": -10.40, "rotY": 87.09, "text": "未名称5" },
+                    { "rotX": 0.70, "rotY": 10.92, "text": "戻り", "sceneId": "scene11" },
+                    { "rotX": -12.77, "rotY": -149.51, "text": "ラウンジ1-1", "sceneId": "scene13" }
+                ]
+            },
+            "scene13": {
+                "panorama": "13.JPG",
+                "hotSpots": [
+                    { "rotX": -11.25, "rotY": 40.44, "text": "戻り", "sceneId": "scene12" },
+                    { "rotX": -6.12, "rotY": -6.96, "text": "未名称6" },
+                    { "rotX": -12.61, "rotY": -90.92, "text": "未名称7" },
+                    { "rotX": -8.64, "rotY": 177.66, "text": "外通路1", "sceneId": "scene14" }
+                ]
+            },
+            "scene14": {
+                "panorama": "14.JPG",
+                "hotSpots": [
+                    { "rotX": -15.06, "rotY": -179.18, "text": "外通路2", "sceneId": "scene15" },
+                    { "rotX": -5.78, "rotY": -1.26, "text": "戻り", "sceneId": "scene13" }
+                ]
+            },
+            "scene15": {
+                "panorama": "15.JPG",
+                "hotSpots": [
+                    { "rotX": -6.83, "rotY": 2.15, "text": "戻り", "sceneId": "scene14" },
+                    { "rotX": -10.11, "rotY": -179.90, "text": "未名称8" },
+                    { "rotX": -4.54, "rotY": 90.71, "text": "未名称9" },
+                    { "rotX": -4.00, "rotY": -89.66, "text": "外通路3", "sceneId": "scene16" }
+                ]
+            },
+            "scene16": {
+                "panorama": "16.JPG",
+                "hotSpots": [
+                    { "rotX": -3.83, "rotY": 88.90, "text": "戻り", "sceneId": "scene15" },
+                    { "rotX": -3.80, "rotY": -82.31, "text": "外通路4", "sceneId": "scene17" }
+                ]
+            },
+            "scene17": {
+                "panorama": "17.JPG",
+                "hotSpots": [
+                    { "rotX": -4.29, "rotY": 98.78, "text": "戻り", "sceneId": "scene16" },
+                    { "rotX": -4.29, "rotY": 0.04, "text": "未名称10" },
+                    { "rotX": -4.43, "rotY": 178.74, "text": "未名称11" },
+                    { "rotX": -1.83, "rotY": -90.97, "text": "外通路6", "sceneId": "scene19" } // 18をスキップして19へ接続
+                ]
+            },
+            "scene19": {
+                "panorama": "19.JPG",
+                "hotSpots": [
+                    { "rotX": -3.27, "rotY": 89.57, "text": "戻り", "sceneId": "scene17" },
+                    { "rotX": -9.76, "rotY": -0.25, "text": "未名称12" },
+                    { "rotX": -2.45, "rotY": 179.40, "text": "未名称13" },
+                    { "rotX": -6.51, "rotY": -89.36, "text": "外通路7", "sceneId": "scene20" }
+                ]
+            },
+            "scene20": {
+                "panorama": "20.JPG",
+                "hotSpots": [
+                    { "rotX": -6.10, "rotY": 88.22, "text": "戻り", "sceneId": "scene19" },
+                    { "rotX": -5.29, "rotY": 177.05, "text": "未名称14" },
+                    { "rotX": -2.81, "rotY": -103.84, "text": "中庭1", "sceneId": "scene21" }
+                ]
+            },
+            "scene21": {
+                "panorama": "21.JPG",
+                "hotSpots": [
+                    { "rotX": -2.04, "rotY": 68.84, "text": "戻り", "sceneId": "scene20" },
+                    { "rotX": -4.47, "rotY": -176.39, "text": "中庭2", "sceneId": "scene22" },
+                    { "rotX": -1.37, "rotY": -90.63, "text": "未名称15" }
+                ]
+            },
+            "scene22": {
+                "panorama": "22.JPG",
+                "hotSpots": [
+                    { "rotX": 8.17, "rotY": 0.43, "text": "戻り", "sceneId": "scene21" },
+                    { "rotX": -1.09, "rotY": -90.53, "text": "未名称16" },
+                    { "rotX": -8.46, "rotY": 179.07, "text": "未名称17" },
+                    { "rotX": -0.35, "rotY": 88.83, "text": "未名称18" }
                 ]
             }
         };
@@ -178,12 +303,9 @@
             const cameraEl = document.getElementById('camera');
             if (cameraEl && cameraEl.components['look-controls']) {
                 cameraEl.components['look-controls'].pitchObject.rotation.x = 0;
-                
-                // ★ スタート時のカメラの向きを yawOffset に合わせてずらす
                 cameraEl.components['look-controls'].yawObject.rotation.y = yawOffset * (Math.PI / 180);
             }
 
-            // シナリオに関わらず、全て1.JPGからスタートする
             loadScene('scene1');
         }
 
@@ -265,7 +387,6 @@
             sceneData.hotSpots.forEach(spot => {
                 const wrapper = document.createElement('a-entity');
                 
-                // ★ 矢印を配置する際にも yawOffset の角度を足してずらす
                 wrapper.setAttribute('rotation', `${spot.rotX} ${spot.rotY + yawOffset} 0`);
                 wrapper.setAttribute('position', '0 1.6 0'); 
 
@@ -294,6 +415,7 @@
                         arrow.setAttribute('opacity', '0.6');
                     });
                 } else {
+                    // 切り替え先がない（未名称）矢印の見た目設定
                     arrow.setAttribute('opacity', '0.3');
                 }
 
