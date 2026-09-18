@@ -1,4 +1,3 @@
-html
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -117,6 +116,8 @@ html
 
     <script>
         let currentScenario = 'normal';
+        let activeSceneId = null; // 現在のシーンを管理
+        let warningTimeout = null; // 警告タイマーを管理
 
         // ★ 方角調整用オフセット
         const yawOffset = -90; 
@@ -290,7 +291,7 @@ html
                 ]
             },
 
-            // --- 新規追加分（24以降） ---
+            // --- 24以降 ---
             "scene24": {
                 "panorama": "24.JPG",
                 "hotSpots": [
@@ -524,16 +525,40 @@ html
 
         const scenarioData = {
             normal: JSON.parse(JSON.stringify(commonData)),
-            fire: JSON.parse(JSON.stringify(commonData)),
-            tsunami: JSON.parse(JSON.stringify(commonData))
+            tsunami: JSON.parse(JSON.stringify(commonData)),
+            fire_pattern_1: JSON.parse(JSON.stringify(commonData)) // ★ 2-1用のデータ土台
         };
 
-        // ★シナリオ固有の設定
-        // 火災シナリオ選択時のみ、scene3のパノラマ画像を「fire_1.jpg」に変更
-        scenarioData.fire.scene3.panorama = "fire_1.jpg";
+        // ==========================================
+        // ★ パターン 2-1 固有のカスタマイズ
+        // ==========================================
+        // ① scene3の画像を「fire_1.jpg」に変更
+        scenarioData.fire_pattern_1.scene3.panorama = "fire_1.jpg";
+
+        // ② scene3から「4-5階踊り場」「3-4階踊り場」の矢印を非表示にする（削除する）
+        scenarioData.fire_pattern_1.scene3.hotSpots = scenarioData.fire_pattern_1.scene3.hotSpots.filter(
+            spot => spot.text !== "4-5階踊り場" && spot.text !== "3-4階踊り場"
+        );
+
+        // ③ scene3の「4403前」の移動先を消し、代わりに警告文を設定する
+        const spot4403 = scenarioData.fire_pattern_1.scene3.hotSpots.find(spot => spot.text === "4403前");
+        if (spot4403) {
+            delete spot4403.sceneId; // クリック時の移動を無効化
+            spot4403.warningText = "危険です！この先には進めません"; // 警告文を設定
+        }
+        // ==========================================
 
         function startScenario(scenarioName) {
-            currentScenario = scenarioName;
+            if (scenarioName === 'fire') {
+                // ★ 火災シナリオ選択時にランダムでパターンを選ぶ土台
+                // （今後 'fire_pattern_2' などを配列に追加すればランダム化されます）
+                const patterns = ['fire_pattern_1'];
+                const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
+                currentScenario = selectedPattern;
+            } else {
+                currentScenario = scenarioName;
+            }
+
             document.getElementById('start-menu').style.display = 'none';
 
             const cameraEl = document.getElementById('camera');
@@ -596,20 +621,23 @@ html
         }
 
         function loadScene(sceneId) {
+            activeSceneId = sceneId; // 現在表示中のシーンIDを記録
+
             const sceneData = scenarioData[currentScenario][sceneId];
             if (!sceneData) return;
 
             const missionUi = document.getElementById('mission-ui');
             
             // ★ミッションUI（メッセージ）の制御
-            if (currentScenario === 'fire') {
+            // fire_pattern_1, fire_pattern_2... のように 'fire' から始まるシナリオ全てに適用
+            if (currentScenario.startsWith('fire')) {
                 if (sceneId === 'scene22') {
-                    // scene22（避難完了地点）に到達した時の処理
+                    // 避難完了地点に到達した時の処理
                     missionUi.innerText = "避難完了";
                     missionUi.style.backgroundColor = "rgba(0, 150, 0, 0.85)"; // 緑色
                     missionUi.style.display = 'block';
                 } else if (sceneId === 'scene1') {
-                    // 最初の画面（scene1）にいる時のみ避難勧告を表示
+                    // 最初の画面にいる時のみ避難勧告を表示
                     missionUi.innerText = "4階トイレにて火災発生！グラウンドまで避難してください！";
                     missionUi.style.backgroundColor = "rgba(220, 0, 0, 0.85)"; // 赤色
                     missionUi.style.display = 'block';
@@ -645,12 +673,38 @@ html
                 arrow.setAttribute('height', '1');
                 arrow.setAttribute('material', 'transparent: true; alphaTest: 0.1');
                 
-                if (spot.sceneId) {
+                // ★ 移動先(sceneId) または 警告文(warningText) がある場合はクリック可能にする
+                if (spot.sceneId || spot.warningText) {
                     arrow.setAttribute('class', 'clickable');
                     arrow.setAttribute('opacity', '0.6');
                     
                     arrow.addEventListener('click', () => {
-                        loadScene(spot.sceneId);
+                        if (spot.sceneId) {
+                            // 通常の画面移動
+                            loadScene(spot.sceneId);
+                        } else if (spot.warningText) {
+                            // 警告文を表示する処理
+                            if (warningTimeout) clearTimeout(warningTimeout); // 既存のタイマーをリセット
+                            
+                            missionUi.innerText = spot.warningText;
+                            missionUi.style.backgroundColor = "rgba(255, 0, 0, 0.9)"; // 警告用の赤色
+                            missionUi.style.display = 'block';
+                            
+                            // 3秒後に元の状態に戻す
+                            warningTimeout = setTimeout(() => {
+                                // ユーザーが画面遷移せず、まだ同じ場所にいる場合のみUIを戻す
+                                if (activeSceneId === sceneId) {
+                                    if (currentScenario.startsWith('fire')) {
+                                        if (sceneId === 'scene1') {
+                                            missionUi.innerText = "4階トイレにて火災発生！グラウンドまで避難してください！";
+                                            missionUi.style.backgroundColor = "rgba(220, 0, 0, 0.85)";
+                                        } else {
+                                            missionUi.style.display = 'none';
+                                        }
+                                    }
+                                }
+                            }, 3000); // 3000ミリ秒 ＝ 3秒
+                        }
                     });
                     
                     arrow.addEventListener('mouseenter', () => {
