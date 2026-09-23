@@ -151,7 +151,7 @@
             "scene4": {
                 "panorama": "4.JPG",
                 "hotSpots": [
-                    { "rotX": -10.80, "rotY": -154.52, "text": "4階階段1", "sceneId": "scene3" },
+                    { "rotX": -10.80, "rotY": -154.52, "text": "4階階段", "sceneId": "scene3" },
                     { "rotX": -33.41, "rotY": 168.37, "text": "3階階段", "sceneId": "scene5" }
                 ]
             },
@@ -522,7 +522,7 @@
                 ]
             },
 
-            // --- 新規追加分（56〜78） ---
+            // --- 新規追加分（56〜79） ---
             "scene56": {
                 "panorama": "56.JPG",
                 "hotSpots": [
@@ -685,13 +685,13 @@
                     { "rotX": -7.43, "rotY": 91.22, "text": "4105C前", "sceneId": "scene77" }
                 ]
             },
-
-            // --- 新規追加分（画像79：火災シナリオ1専用） ---
             "scene79": {
                 "panorama": "79.JPG",
                 "hotSpots": [
-                    { "rotX": -5.04, "rotY": 91.98, "text": "3-4階踊り場", "sceneId": "scene4" },
-                    { "rotX": -16.65, "rotY": 9.69, "text": "ラウンジ4-1", "sceneId": "scene2" }
+                    // 元Yaw: 91.98 -> 真後ろ(+180) = 271.98
+                    { "rotX": -5.04, "rotY": 271.98, "text": "3-4階踊り場", "sceneId": "scene4" },
+                    // 元Yaw: 9.69 -> 右に20度(-20) = -10.31
+                    { "rotX": -16.65, "rotY": -10.31, "text": "ラウンジ4-1", "sceneId": "scene2" }
                 ]
             }
         };
@@ -703,7 +703,7 @@
         };
 
         // ==========================================
-        // ★ パターン 2-1 固有のカスタマイズ
+        // ★ パターン 2-1（火災シナリオ用） 固有のカスタマイズ
         // ==========================================
         // ① scene3の画像を「fire_1.jpg」に変更
         scenarioData.fire_pattern_1.scene3.panorama = "fire_1.jpg";
@@ -720,29 +720,29 @@
             spot4403.warningText = "危険です！この先には進めません"; // 警告文を設定
         }
 
-        // ④ 火災シナリオ1（fire_pattern_1）の時のみ、画像2に「非常階段前4-1」の矢印を追加（画像79へ移動）
+        // ④ 火災シナリオ2-1（画像2）に「非常階段前4-1」への矢印を追加
+        // 元Yaw: 28.96 -> 右に90度 (-90) = -61.04
         scenarioData.fire_pattern_1.scene2.hotSpots.push({
-            "rotX": -14.55,
-            "rotY": 28.96,
-            "text": "非常階段前4-1",
-            "sceneId": "scene79"
+            "rotX": -14.55, "rotY": -61.04, "text": "非常階段前4-1", "sceneId": "scene79"
         });
 
-        // ⑤ 火災シナリオ2-1の場合、画像4の「4階階段1」への矢印を非表示にし、代わりに警告用矢印を追加する
+        // ⑤ 火災シナリオ2-1（画像4 = 3-4階踊り場）の「4階階段」を非表示にする
         scenarioData.fire_pattern_1.scene4.hotSpots = scenarioData.fire_pattern_1.scene4.hotSpots.filter(
-            spot => spot.text !== "4階階段1"
+            spot => spot.text !== "4階階段" && spot.text !== "4階階段1"
         );
+
+        // ⑥ 火災シナリオ2-1（画像4）に警告用の「非常階段前4-1」矢印を追加
+        // 元Yaw: 164.52 -> 左に30度 (+30) = 194.52
         scenarioData.fire_pattern_1.scene4.hotSpots.push({
             "rotX": 8.92,
-            "rotY": 164.52,
+            "rotY": 194.52,
             "text": "非常階段前4-1",
-            "warningText": "火災発生中です！戻らないでください！" // クリック時に移動せず5秒間警告表示
+            "warningText": "火災発生中です！戻らないでください！"
         });
         // ==========================================
 
         function startScenario(scenarioName) {
             if (scenarioName === 'fire') {
-                // ★ 火災シナリオ選択時にランダムでパターンを選ぶ土台
                 const patterns = ['fire_pattern_1'];
                 const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
                 currentScenario = selectedPattern;
@@ -822,17 +822,14 @@
             // ★ミッションUI（メッセージ）の制御
             if (currentScenario.startsWith('fire')) {
                 if (sceneId === 'scene22') {
-                    // 避難完了地点に到達した時の処理
                     missionUi.innerText = "避難完了";
-                    missionUi.style.backgroundColor = "rgba(0, 150, 0, 0.85)"; // 緑色
+                    missionUi.style.backgroundColor = "rgba(0, 150, 0, 0.85)";
                     missionUi.style.display = 'block';
                 } else if (sceneId === 'scene1') {
-                    // 最初の画面にいる時のみ避難勧告を表示
                     missionUi.innerText = "4階トイレにて火災発生！グラウンドまで避難してください！";
-                    missionUi.style.backgroundColor = "rgba(220, 0, 0, 0.85)"; // 赤色
+                    missionUi.style.backgroundColor = "rgba(220, 0, 0, 0.85)";
                     missionUi.style.display = 'block';
                 } else {
-                    // それ以外の画面では非表示
                     missionUi.style.display = 'none';
                 }
             } else if (currentScenario === 'tsunami' && sceneId === 'scene1') {
@@ -863,26 +860,22 @@
                 arrow.setAttribute('height', '1');
                 arrow.setAttribute('material', 'transparent: true; alphaTest: 0.1');
                 
-                // ★ 移動先(sceneId) または 警告文(warningText) がある場合はクリック可能にする
                 if (spot.sceneId || spot.warningText) {
                     arrow.setAttribute('class', 'clickable');
                     arrow.setAttribute('opacity', '0.6');
                     
                     arrow.addEventListener('click', () => {
                         if (spot.sceneId) {
-                            // 通常の画面移動
                             loadScene(spot.sceneId);
                         } else if (spot.warningText) {
-                            // 警告文を表示する処理
-                            if (warningTimeout) clearTimeout(warningTimeout); // 既存のタイマーをリセット
+                            if (warningTimeout) clearTimeout(warningTimeout);
                             
                             missionUi.innerText = spot.warningText;
-                            missionUi.style.backgroundColor = "rgba(255, 0, 0, 0.9)"; // 警告用の赤色
+                            missionUi.style.backgroundColor = "rgba(255, 0, 0, 0.9)";
                             missionUi.style.display = 'block';
                             
-                            // 5秒後に元の状態に戻す
+                            // 5秒間に変更（ご要望対応）
                             warningTimeout = setTimeout(() => {
-                                // ユーザーが画面遷移せず、まだ同じ場所にいる場合のみUIを戻す
                                 if (activeSceneId === sceneId) {
                                     if (currentScenario.startsWith('fire')) {
                                         if (sceneId === 'scene1') {
