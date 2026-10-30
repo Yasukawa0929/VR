@@ -5,7 +5,7 @@
     <title>ストリートビュー風パノラマ VR対応版（シナリオ選択機能付き）</title>
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     <style>
-        body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; }
+        body { margin: 0; padding: 0; overflow: hidden; font-family: sans-serif; background-color: #000; }
         .a-loader-title { display: none !important; }
         
         /* シナリオ選択メニューのスタイル */
@@ -22,6 +22,7 @@
             align-items: center;
             z-index: 9999;
             color: white;
+            transition: opacity 0.5s;
         }
         #start-menu h1 {
             font-size: 24px;
@@ -76,6 +77,54 @@
             pointer-events: none;
             text-align: center;
         }
+
+        /* プリロード用ローディング画面 */
+        #loading-screen {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: #111;
+            display: none;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+            color: white;
+        }
+        #loading-text {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .progress-container {
+            width: 80%;
+            max-width: 500px;
+            height: 20px;
+            background-color: #333;
+            border-radius: 10px;
+            overflow: hidden;
+        }
+        #progress-bar {
+            width: 0%;
+            height: 100%;
+            background-color: #4CAF50;
+            transition: width 0.3s;
+        }
+
+        /* フェード用暗転オーバーレイ */
+        #fade-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            background-color: black;
+            z-index: 8000;
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.5s ease-in-out;
+        }
     </style>
 </head>
 <body>
@@ -88,6 +137,17 @@
         <button class="scenario-btn tsunami" onclick="startScenario('tsunami')">シナリオ3：津波発生時</button>
     </div>
 
+    <!-- ローディング画面（プログレスバー） -->
+    <div id="loading-screen">
+        <div id="loading-text">VR空間データを読み込み中... 0%</div>
+        <div class="progress-container">
+            <div id="progress-bar"></div>
+        </div>
+    </div>
+
+    <!-- 暗転用フェードレイヤー -->
+    <div id="fade-overlay"></div>
+
     <!-- 画面上部の指示メッセージ -->
     <div id="mission-ui"></div>
 
@@ -96,7 +156,7 @@
         <a-assets></a-assets>
 
         <!-- 背景画像 -->
-        <a-sky id="sky" src="" rotation="0 180 0" animation__fade="property: material.opacity; from: 0; to: 1; dur: 500; startEvents: sceneloaded"></a-sky>
+        <a-sky id="sky" src="" rotation="0 180 0"></a-sky>
 
         <a-entity id="hotspots"></a-entity>
 
@@ -116,10 +176,14 @@
 
     <script>
         let currentScenario = 'normal';
-        let activeSceneId = null; // 現在のシーンを管理
-        let warningTimeout = null; // 警告タイマーを管理
+        let activeSceneId = null; 
+        let warningTimeout = null; 
 
-        // ★ 方角調整用オフセット
+        // ★ キャッシュバスター用（一連のセッションで共通の時間を使用）
+        const cacheBuster = "?v=" + new Date().getTime();
+        // ★ プリロード済み画像を保持するオブジェクト（再リクエスト防止）
+        const preloadedImages = {};
+
         const yawOffset = -90; 
 
         // 全シナリオ共通データ
@@ -128,7 +192,7 @@
                 "panorama": "1.JPG",
                 "hotSpots": [
                     { "rotX": -11.61, "rotY": -175.17, "text": "部屋内" }, 
-                    { "rotX": -10.12, "rotY": -90.30, "text": "バルコニー" },
+                    { "rotX": -10.12, "rotY": -90.30, "text": "4401前1", "sceneId": "scene6" },
                     { "rotX": -13.40, "rotY": 66.04, "text": "ラウンジ4-1", "sceneId": "scene2" }
                 ]
             },
@@ -136,7 +200,7 @@
                 "panorama": "2.JPG",
                 "hotSpots": [
                     { "rotX": -21.30, "rotY": 40.47, "text": "4階階段1", "sceneId": "scene3" },
-                    { "rotX": -15.01, "rotY": -122.70, "text": "ラウンジ4-1", "sceneId": "scene1" }
+                    { "rotX": -15.01, "rotY": -122.70, "text": "4402前", "sceneId": "scene1" }
                 ]
             },
             "scene3": {
@@ -166,22 +230,22 @@
             "scene6": {
                 "panorama": "6.JPG",
                 "hotSpots": [
-                    { "rotX": -12.09, "rotY": -91.27, "text": "4401前", "sceneId": "scene56" },
-                    { "rotX": -12.30, "rotY": 88.87, "text": "ラウンジ3-1", "sceneId": "scene57" }
+                    { "rotX": -12.09, "rotY": -91.27, "text": "4401前2", "sceneId": "scene7" },
+                    { "rotX": -12.30, "rotY": 88.87, "text": "4402前", "sceneId": "scene1" }
                 ]
             },
             "scene7": {
                 "panorama": "7.JPG",
                 "hotSpots": [
-                    { "rotX": -13.81, "rotY": -89.29, "text": "4401前2", "sceneId": "scene6" },
-                    { "rotX": -8.80, "rotY": 90.15, "text": "4401前", "sceneId": "scene6" }
+                    { "rotX": -13.81, "rotY": -89.29, "text": "4401前3", "sceneId": "scene8" },
+                    { "rotX": -8.80, "rotY": 90.15, "text": "4401前2", "sceneId": "scene6" }
                 ]
             },
             "scene8": {
                 "panorama": "8.JPG",
                 "hotSpots": [
-                    { "rotX": -3.95, "rotY": -89.16, "text": "4階バルコニー前1" },
-                    { "rotX": -10.02, "rotY": 90.58, "text": "4401前2", "sceneId": "scene7" }
+                    { "rotX": -3.95, "rotY": -89.16, "text": "バルコニー使用"", "sceneId": "scene52" },
+                    { "rotX": -10.02, "rotY": 90.58, "text": "4401前3", "sceneId": "scene7" }
                 ]
             },
             "scene9": {
@@ -688,9 +752,7 @@
             "scene79": {
                 "panorama": "79.JPG",
                 "hotSpots": [
-                    // 元Yaw: 91.98 -> 真後ろ(+180) = 271.98
                     { "rotX": -5.04, "rotY": 271.98, "text": "3-4階踊り場", "sceneId": "scene4" },
-                    // 元Yaw: 9.69 -> 右に20度(-20) = -10.31
                     { "rotX": -16.65, "rotY": -10.31, "text": "ラウンジ4-1", "sceneId": "scene2" }
                 ]
             }
@@ -699,66 +761,117 @@
         const scenarioData = {
             normal: JSON.parse(JSON.stringify(commonData)),
             tsunami: JSON.parse(JSON.stringify(commonData)),
-            fire_pattern_1: JSON.parse(JSON.stringify(commonData)) // ★ 2-1用のデータ土台
+            fire_pattern_1: JSON.parse(JSON.stringify(commonData)) 
         };
 
-        // ==========================================
-        // ★ パターン 2-1（火災シナリオ用） 固有のカスタマイズ
-        // ==========================================
-        // ① scene3の画像を「fire_1.jpg」に変更
+        // --- パターン 2-1（火災シナリオ用） 固有のカスタマイズ ---
         scenarioData.fire_pattern_1.scene3.panorama = "fire_1.jpg";
-
-        // ② scene3から「4-5階踊り場」「3-4階踊り場」の矢印を非表示にする（削除する）
+        scenarioData.fire_pattern_1.scene4.panorama = "fire_2.jpg"; // ★ ここを追加
+        
         scenarioData.fire_pattern_1.scene3.hotSpots = scenarioData.fire_pattern_1.scene3.hotSpots.filter(
             spot => spot.text !== "4-5階踊り場" && spot.text !== "3-4階踊り場"
         );
-
-        // ③ scene3の「4403前」の移動先を消し、代わりに警告文を設定する
         const spot4403 = scenarioData.fire_pattern_1.scene3.hotSpots.find(spot => spot.text === "4403前");
         if (spot4403) {
-            delete spot4403.sceneId; // クリック時の移動を無効化
-            spot4403.warningText = "危険です！この先には進めません"; // 警告文を設定
+            delete spot4403.sceneId; 
+            spot4403.warningText = "危険です！この先には進めません"; 
         }
-
-        // ④ 火災シナリオ2-1（画像2）に「非常階段前4-1」への矢印を追加
-        // 元Yaw: 28.96 -> 右に90度 (-90) = -61.04
         scenarioData.fire_pattern_1.scene2.hotSpots.push({
             "rotX": -14.55, "rotY": -61.04, "text": "非常階段前4-1", "sceneId": "scene79"
         });
-
-        // ⑤ 火災シナリオ2-1（画像4 = 3-4階踊り場）の「4階階段」を非表示にする
         scenarioData.fire_pattern_1.scene4.hotSpots = scenarioData.fire_pattern_1.scene4.hotSpots.filter(
             spot => spot.text !== "4階階段" && spot.text !== "4階階段1"
         );
-
-        // ⑥ 火災シナリオ2-1（画像4）に警告用の「非常階段前4-1」矢印を追加
-        // 元Yaw: 164.52 -> 左に30度 (+30) = 194.52
         scenarioData.fire_pattern_1.scene4.hotSpots.push({
             "rotX": 8.92,
             "rotY": 194.52,
             "text": "非常階段前4-1",
             "warningText": "火災発生中です！戻らないでください！"
         });
-        // ==========================================
+
+
+        // ★★★ プリロード（事前読み込み）関数 ★★★
+        function preloadScenarioImages(scenarioName, onComplete) {
+            const data = scenarioData[scenarioName];
+            const imagesToLoad = [];
+            
+            // 必要な全パノラマ画像のリストアップ
+            for (const key in data) {
+                if (data[key].panorama && !imagesToLoad.includes(data[key].panorama)) {
+                    imagesToLoad.push(data[key].panorama);
+                }
+            }
+
+            const total = imagesToLoad.length;
+            let loaded = 0;
+
+            if (total === 0) {
+                onComplete();
+                return;
+            }
+
+            document.getElementById('loading-screen').style.display = 'flex';
+            document.getElementById('progress-bar').style.width = '0%';
+            document.getElementById('loading-text').innerText = `VR空間データを読み込み中... 0%`;
+
+            imagesToLoad.forEach(src => {
+                if (preloadedImages[src]) {
+                    // 既に読み込み済みの場合はスキップ
+                    checkProgress();
+                } else {
+                    const img = new Image();
+                    // キャッシュバスター付与による強制最新化
+                    img.src = src + cacheBuster;
+                    img.onload = () => {
+                        preloadedImages[src] = img.src; // メモリに保持
+                        checkProgress();
+                    };
+                    img.onerror = () => {
+                        console.warn(`画像の読み込みに失敗しました: ${src}`);
+                        checkProgress(); // エラーでも進める
+                    };
+                }
+            });
+
+            function checkProgress() {
+                loaded++;
+                const percent = Math.floor((loaded / total) * 100);
+                document.getElementById('progress-bar').style.width = `${percent}%`;
+                document.getElementById('loading-text').innerText = `VR空間データを読み込み中... ${percent}%`;
+
+                if (loaded >= total) {
+                    // 少しだけ余韻を残して非表示にする
+                    setTimeout(() => {
+                        document.getElementById('loading-screen').style.display = 'none';
+                        onComplete();
+                    }, 500);
+                }
+            }
+        }
 
         function startScenario(scenarioName) {
+            document.getElementById('start-menu').style.opacity = '0';
+            setTimeout(() => {
+                document.getElementById('start-menu').style.display = 'none';
+            }, 500);
+
+            let selectedScenario = scenarioName;
             if (scenarioName === 'fire') {
                 const patterns = ['fire_pattern_1'];
-                const selectedPattern = patterns[Math.floor(Math.random() * patterns.length)];
-                currentScenario = selectedPattern;
-            } else {
-                currentScenario = scenarioName;
+                selectedScenario = patterns[Math.floor(Math.random() * patterns.length)];
             }
+            
+            currentScenario = selectedScenario;
 
-            document.getElementById('start-menu').style.display = 'none';
-
-            const cameraEl = document.getElementById('camera');
-            if (cameraEl && cameraEl.components['look-controls']) {
-                cameraEl.components['look-controls'].pitchObject.rotation.x = 0;
-                cameraEl.components['look-controls'].yawObject.rotation.y = yawOffset * (Math.PI / 180);
-            }
-
-            loadScene('scene1');
+            // ★ 画像のプリロード完了後に scene1 をロード開始する
+            preloadScenarioImages(currentScenario, () => {
+                const cameraEl = document.getElementById('camera');
+                if (cameraEl && cameraEl.components['look-controls']) {
+                    cameraEl.components['look-controls'].pitchObject.rotation.x = 0;
+                    cameraEl.components['look-controls'].yawObject.rotation.y = yawOffset * (Math.PI / 180);
+                }
+                loadScene('scene1', true);
+            });
         }
 
         function createJapaneseTextTexture(text) {
@@ -780,46 +893,99 @@
             return canvas.toDataURL();
         }
 
-        function createArrowTexture() {
+        // ★★★ マーカーデザインの変更（マップピン型） ★★★
+        function createPinTexture() {
             const canvas = document.createElement('canvas');
             canvas.width = 256;
             canvas.height = 256;
             const ctx = canvas.getContext('2d');
 
-            ctx.fillStyle = 'rgba(255, 255, 255, 0.3)';
-            ctx.strokeStyle = 'black';
-            ctx.lineWidth = 8;
+            const cx = 128;
+            const cy = 100; // 少し上に配置して、下の尖った部分のスペースを確保
+
+            // 影を追加して視認性を向上
+            ctx.shadowColor = 'rgba(0, 0, 0, 0.6)';
+            ctx.shadowBlur = 10;
+            ctx.shadowOffsetX = 0;
+            ctx.shadowOffsetY = 2;
+
+            // マップピンのベース形状（しずく型）
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.9)';
             ctx.beginPath();
-            ctx.arc(128, 128, 110, 0, Math.PI * 2);
+            // Math.PI * 0.2 (右下) から Math.PI * 0.8 (左下) まで反時計回りで円弧を描く
+            ctx.arc(cx, cy, 50, Math.PI * 0.2, Math.PI * 0.8, true);
+            // 下の尖った先端部分
+            ctx.lineTo(cx, cy + 90);
+            ctx.closePath();
             ctx.fill();
-            ctx.stroke();
 
-            ctx.lineWidth = 14;
-            ctx.lineCap = 'round';
-            ctx.lineJoin = 'round';
-            ctx.beginPath();
-            ctx.moveTo(128, 180);
-            ctx.lineTo(128, 76);
-            ctx.stroke();
+            // 影の描画をリセット（内側の丸に影をつけないため）
+            ctx.shadowColor = 'transparent';
+            ctx.shadowBlur = 0;
 
+            // 内側をくり抜いてリング状のピンにする
+            ctx.globalCompositeOperation = 'destination-out';
             ctx.beginPath();
-            ctx.moveTo(86, 118);
-            ctx.lineTo(128, 76);
-            ctx.lineTo(170, 118);
-            ctx.stroke();
+            ctx.arc(cx, cy, 20, 0, Math.PI * 2);
+            ctx.fill();
+            
+            // ブレンドモードを元に戻す
+            ctx.globalCompositeOperation = 'source-over';
 
             return canvas.toDataURL();
         }
 
-        function loadScene(sceneId) {
-            activeSceneId = sceneId; // 現在表示中のシーンIDを記録
-
+        // ★★★ 画面フェードと同期読み込みを行う loadScene ★★★
+        function loadScene(sceneId, isInitial = false) {
             const sceneData = scenarioData[currentScenario][sceneId];
             if (!sceneData) return;
 
+            activeSceneId = sceneId; 
+
+            const fadeOverlay = document.getElementById('fade-overlay');
+            const sky = document.getElementById('sky');
+            const hotspotContainer = document.getElementById('hotspots');
             const missionUi = document.getElementById('mission-ui');
-            
-            // ★ミッションUI（メッセージ）の制御
+
+            // 1. フェードアウト（画面を暗くする）
+            if (!isInitial) {
+                fadeOverlay.style.opacity = '1';
+                fadeOverlay.style.pointerEvents = 'all'; // クリックブロック
+            }
+
+            // フェードアウトの時間を待ってから裏で切り替え開始
+            setTimeout(() => {
+                // ホットスポットを一旦全消去
+                hotspotContainer.innerHTML = '';
+                
+                // 画像ソースの差し替え（プリロード済みのキャッシュバスター付きURLを使用）
+                const targetSrc = preloadedImages[sceneData.panorama] || (sceneData.panorama + cacheBuster);
+                
+                // 読み込み完了時の処理（1回だけ実行するよう定義）
+                const onSkyLoaded = () => {
+                    sky.removeEventListener('materialtextureloaded', onSkyLoaded);
+
+                    // 矢印（ピン）を配置
+                    setupHotspots(sceneId, sceneData, missionUi);
+
+                    // ミッションUIの更新
+                    updateMissionUI(sceneId);
+
+                    // フェードイン（画面を明るくする）
+                    fadeOverlay.style.opacity = '0';
+                    fadeOverlay.style.pointerEvents = 'none';
+                };
+
+                sky.addEventListener('materialtextureloaded', onSkyLoaded);
+                
+                // 画像セット
+                sky.setAttribute('src', targetSrc);
+
+            }, isInitial ? 0 : 500); // 初期ロード時は待たずに即実行、移動時は500ms(フェードアウト時間)待機
+        }
+
+        function updateMissionUI(sceneId) {
+            const missionUi = document.getElementById('mission-ui');
             if (currentScenario.startsWith('fire')) {
                 if (sceneId === 'scene22') {
                     missionUi.innerText = "避難完了";
@@ -839,14 +1005,11 @@
             } else {
                 missionUi.style.display = 'none';
             }
+        }
 
-            const sky = document.getElementById('sky');
-            sky.setAttribute('src', sceneData.panorama);
-            sky.emit('sceneloaded');
-
+        function setupHotspots(sceneId, sceneData, missionUi) {
             const hotspotContainer = document.getElementById('hotspots');
-            hotspotContainer.innerHTML = '';
-
+            
             sceneData.hotSpots.forEach(spot => {
                 const wrapper = document.createElement('a-entity');
                 
@@ -854,15 +1017,16 @@
                 wrapper.setAttribute('position', '0 1.6 0'); 
 
                 const arrow = document.createElement('a-image');
-                arrow.setAttribute('src', createArrowTexture());
-                arrow.setAttribute('position', '0 0.5 -6');
+                // ここで createPinTexture() を呼び出します
+                arrow.setAttribute('src', createPinTexture());
+                arrow.setAttribute('position', '0 0.0 -6');
                 arrow.setAttribute('width', '1');
                 arrow.setAttribute('height', '1');
                 arrow.setAttribute('material', 'transparent: true; alphaTest: 0.1');
                 
                 if (spot.sceneId || spot.warningText) {
                     arrow.setAttribute('class', 'clickable');
-                    arrow.setAttribute('opacity', '0.6');
+                    arrow.setAttribute('opacity', '0.7');
                     
                     arrow.addEventListener('click', () => {
                         if (spot.sceneId) {
@@ -874,30 +1038,22 @@
                             missionUi.style.backgroundColor = "rgba(255, 0, 0, 0.9)";
                             missionUi.style.display = 'block';
                             
-                            // 5秒間に変更（ご要望対応）
                             warningTimeout = setTimeout(() => {
                                 if (activeSceneId === sceneId) {
-                                    if (currentScenario.startsWith('fire')) {
-                                        if (sceneId === 'scene1') {
-                                            missionUi.innerText = "4階トイレにて火災発生！グラウンドまで避難してください！";
-                                            missionUi.style.backgroundColor = "rgba(220, 0, 0, 0.85)";
-                                        } else {
-                                            missionUi.style.display = 'none';
-                                        }
-                                    }
+                                    updateMissionUI(sceneId); // 元のUI状態に戻す
                                 }
-                            }, 5000); // 5000ミリ秒 ＝ 5秒
+                            }, 5000);
                         }
                     });
                     
                     arrow.addEventListener('mouseenter', () => {
-                        arrow.setAttribute('scale', '1.3 1.3 1.3');
+                        arrow.setAttribute('scale', '1.2 1.2 1.2');
                         arrow.setAttribute('opacity', '1.0');
                     });
                     
                     arrow.addEventListener('mouseleave', () => {
                         arrow.setAttribute('scale', '1 1 1');
-                        arrow.setAttribute('opacity', '0.6');
+                        arrow.setAttribute('opacity', '0.7');
                     });
                 } else {
                     arrow.setAttribute('opacity', '0.3');
@@ -905,7 +1061,7 @@
 
                 const textLabel = document.createElement('a-image');
                 textLabel.setAttribute('src', createJapaneseTextTexture(spot.text));
-                textLabel.setAttribute('position', '0 -0.5 -6');
+                textLabel.setAttribute('position', '0 -0.8 -6');
                 textLabel.setAttribute('width', '2.5');
                 textLabel.setAttribute('height', '0.625');
                 textLabel.setAttribute('material', 'transparent: true; alphaTest: 0.1');
