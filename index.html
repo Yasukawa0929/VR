@@ -51,13 +51,7 @@
             background-color: #ff4444;
             color: white;
         }
-        .scenario-btn.tsunami {
-            border-color: #4488ff;
-        }
-        .scenario-btn.tsunami:hover {
-            background-color: #4488ff;
-            color: white;
-        }
+
 
         /* 画面上部のメッセージUI */
         #mission-ui {
@@ -244,7 +238,7 @@
             "scene8": {
                 "panorama": "8.JPG",
                 "hotSpots": [
-                    { "rotX": -3.95, "rotY": -89.16, "text": "バルコニー使用"", "sceneId": "scene52" },
+                    { "rotX": -3.95, "rotY": -89.16, "text": "バルコニー使用", "sceneId": "scene52" },
                     { "rotX": -10.02, "rotY": 90.58, "text": "4401前3", "sceneId": "scene7" }
                 ]
             },
@@ -354,7 +348,6 @@
                     { "rotX": -0.35, "rotY": 88.83, "text": "未名称18" }
                 ]
             },
-
             // --- 24以降 ---
             "scene24": {
                 "panorama": "24.JPG",
@@ -585,7 +578,6 @@
                     { "rotX": -7.11, "rotY": 89.04, "text": "外通路12", "sceneId": "scene53" }
                 ]
             },
-
             // --- 新規追加分（56〜79） ---
             "scene56": {
                 "panorama": "56.JPG",
@@ -1059,15 +1051,23 @@
                     arrow.setAttribute('opacity', '0.3');
                 }
 
+                // ★ここから下のテキストラベル作成部分を一時的に非表示（コメントアウト）★
+                /*
                 const textLabel = document.createElement('a-image');
                 textLabel.setAttribute('src', createJapaneseTextTexture(spot.text));
                 textLabel.setAttribute('position', '0 -0.8 -6');
                 textLabel.setAttribute('width', '2.5');
                 textLabel.setAttribute('height', '0.625');
                 textLabel.setAttribute('material', 'transparent: true; alphaTest: 0.1');
+                */
 
                 wrapper.appendChild(arrow);
+                
+                // ★テキストラベルをラッパーに追加する処理も非表示（コメントアウト）★
+                /*
                 wrapper.appendChild(textLabel);
+                */
+                
                 hotspotContainer.appendChild(wrapper);
             });
         }
