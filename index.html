@@ -1,3 +1,8 @@
+火災シナリオ選択時に `scene2` の背景画像を `fire_3.jpg`（拡張子は前後のルールに合わせて `.jpg` としています）に変更する処理を追加したコード全文をご用意しました。
+
+以下のコードをコピーし、上書き保存してご使用ください。
+
+```
 <!DOCTYPE html>
 <html lang="ja">
 <head>
@@ -756,8 +761,9 @@
         };
 
         // --- パターン 2-1（火災シナリオ用） 固有のカスタマイズ ---
+        scenarioData.fire_pattern_1.scene2.panorama = "fire_3.jpg"; // ★ ここを追加
         scenarioData.fire_pattern_1.scene3.panorama = "fire_1.jpg";
-        scenarioData.fire_pattern_1.scene4.panorama = "fire_2.jpg"; // ★ ここを追加
+        scenarioData.fire_pattern_1.scene4.panorama = "fire_2.jpg"; 
         
         scenarioData.fire_pattern_1.scene3.hotSpots = scenarioData.fire_pattern_1.scene3.hotSpots.filter(
             spot => spot.text !== "4-5階踊り場" && spot.text !== "3-4階踊り場"
